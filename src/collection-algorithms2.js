@@ -28,16 +28,31 @@
 	    };
 
 
-	    // TODO
+	    // Returns the index of the element in openSet which has minimum fScore
 	    var findMin = function(openSet, fScore) {
-
-
+		if (openSet.length == 0) {
+		    // Should never be the case
+		    return undefined;
+		}
+		var minPos = 0;
+		var tempScore = fScore[0];
+		for (var i = 1; i < openSet.length; i++) {
+		    var s = fScore[openSet[i]];
+		    if (s < tempScore) {
+			tempScore = s;
+			minPos = i;
+		    }
+		}
+		return minPos;
 	    };
 
 	    var cy = this._private.cy;
 	    directed = !$$.is.fn(weightFn) ? weightFn : directed;
-	    weightFn = $$.is.fn(weightFn) ? weightFn : function() {return 1;}; // if not specified, assume each edge has equal weight (1)
-	    heuristic = $$.is.fn(heuristic) ? heuristic : function() {return 0;}; // if not specified, assume zero constant heuristic - Will be exactly as running Dijkstra
+	    // If not specified, assume each edge has equal weight (1)
+	    weightFn = $$.is.fn(weightFn) ? weightFn : function() {return 1;};
+	    // If not specified, assume zero constant heuristic
+	    // It will be exactly as running Dijkstra
+	    heuristic = $$.is.fn(heuristic) ? heuristic : function() {return 0;};
 
 	    var source = $$.is.string(root) ? this.filter(root)[0] : root[0];
 	    var target = $$.is.string(goal) ? this.filter(goal)[0] : goal[0];
@@ -61,14 +76,12 @@
 		
 		// If we've found our goal, then we are done
 		if (cMin.id() == target.id()) {
-
 		    var rPath = reconstructPath(source, target, cameFrom, []);
 		    return {
 			found : true
 			, cost : gScore[cMin]
 			, path : rPath
-		    };
-		    
+		    };		    
 		}
 		
 		// Add cMin to processed nodes
@@ -78,7 +91,8 @@
 
 		// Update scores for neighbors of cMin
 		// Take into account if graph is directed or not
-		var vwEdges = v.connectedEdges(directed ? '[source = "' + v.id() + '"]' : undefined).intersect(edges); 		
+		var vwEdges = v.connectedEdges(directed ? '[source = "' + v.id() + '"]' 
+					       : undefined).intersect(edges); 		
 		for (var i = 0; i < vwEdges.length; i++) {
 		    var e = vwEdges[i];
 		    var w = e.connectedNodes('[id != "' + v.id() + '"]').intersect(nodes);
