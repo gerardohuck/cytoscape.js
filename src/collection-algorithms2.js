@@ -51,12 +51,12 @@
 	    var cy = this._private.cy;
 	    // If not specified, assume zero constant heuristic
 	    // It will be exactly as running Dijkstra
-	    heuristic = $$.is.fn(heuristic) ? heuristic : function() {return 0;};
+	    heuristic = $$.is.fn(heuristic) ? heuristic : function(a,b) {return 0;};
 	    // If not specified, assume each edge has equal weight (1)
-	    weightFn = $$.is.fn(weightFn) ? weightFn : function() {return 1;};
+	    weightFn = $$.is.fn(weightFn) ? weightFn : function(a) {return 1;};
 
-	    var source = $$.is.string(root) ? this.filter(root)[0] : root[0];
-	    var target = $$.is.string(goal) ? this.filter(goal)[0] : goal[0];
+	    var source = $$.is.string(root) ? this.filter("#" + root)[0] : root[0];
+	    var target = $$.is.string(goal) ? this.filter("#" + goal)[0] : goal[0];
 
 	    var closedSet = [];
 	    var openSet = [source];
@@ -65,15 +65,19 @@
 	    var fScore = {};
 
 	    gScore[source.id()] = 0;
-	    fScore[source.id()] = heuristic(source);
+	    fScore[source.id()] = heuristic(source, target);
 	    
 	    var edges = this.edges().not(':loop');
 	    var nodes = this.nodes();
-	    
+
+	    // Counter
+	    var steps = 0;
+
 	    // Main loop 
 	    while (openSet.length > 0) {
 		var minPos = findMin(openSet, fScore);
 		var cMin = openSet[minPos];
+		steps++;
 		
 		// If we've found our goal, then we are done
 		if (cMin.id() == target.id()) {
@@ -82,6 +86,7 @@
 			found : true
 			, cost : gScore[cMin.id()]
 			, path : rPath.reverse()
+			, steps : steps
 		    };		    
 		}
 		
@@ -112,7 +117,7 @@
 		    //   tentative gScore is less than previous value
 		    if (openSet.indexOf(w) == -1) {
 			gScore[w.id()] = tempScore;
-			fScore[w.id()] = tempScore + heuristic(w);
+			fScore[w.id()] = tempScore + heuristic(w, target);
 			openSet.push(w); // Add node to openSet
 			cameFrom[w.id()] = cMin.id();
 			continue;
@@ -120,7 +125,7 @@
 		    // w already in openSet
 		    if (tempScore < gScore[w.id()]) {
 			gScore[w.id()] = tempScore;
-			fScore[w.id()] = tempScore + heuristic(w);
+			fScore[w.id()] = tempScore + heuristic(w, target);
 			cameFrom[w.id()] = cMin.id();
 		    }
 
@@ -134,6 +139,7 @@
 		found : false
 		, cost : Infinity
 		, path : [] 
+		, steps : steps
 	    };
 	}
 
