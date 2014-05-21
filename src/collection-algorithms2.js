@@ -3,10 +3,18 @@
 
     // Additional graph analysis algorithms
     $$.fn.eles({
-	
+
 	// implemented from pseudocode from wikipedia
 	aStar: function(root, goal, directed, heuristic, weightFn) {
+	
+	    var debug = true;
 	    
+	    var logDebug = function(text) {
+		if (debug) {
+		    console.log(text);
+		}
+	    };
+
 	    // Reconstructs the path from Start to End, acumulating the result in pathAcum
 	    var reconstructPath = function(start, end, cameFromMap, pathAcum) {
 		// Base case
@@ -48,6 +56,8 @@
 		return minPos;
 	    };
 
+	    logDebug("Starting aStar."); 
+
 	    var cy = this._private.cy;
 	    // If not specified, assume zero constant heuristic
 	    // It will be exactly as running Dijkstra
@@ -57,6 +67,9 @@
 
 	    var source = $$.is.string(root) ? this.filter("#" + root)[0] : root[0];
 	    var target = $$.is.string(goal) ? this.filter("#" + goal)[0] : goal[0];
+
+	    logDebug("Source node: " + source.id()); 
+	    logDebug("Target node: " + target.id()); 
 
 	    var closedSet = [];
 	    var openSet = [source];
@@ -78,14 +91,20 @@
 		var minPos = findMin(openSet, fScore);
 		var cMin = openSet[minPos];
 		steps++;
+
+		logDebug("\nStep: " + steps);
+		logDebug("Processing node: " + cMin.id() + ", fScore = " + fScore[cMin.id()]);
 		
 		// If we've found our goal, then we are done
 		if (cMin.id() == target.id()) {
+		    logDebug("Found goal node!");
 		    var rPath = reconstructPath(source.id(), target.id(), cameFrom, []);
+		    rPath.reverse();
+		    logDebug("Path: " + rPath);
 		    return {
 			found : true
 			, cost : gScore[cMin.id()]
-			, path : rPath.reverse()
+			, path : rPath
 			, steps : steps
 		    };		    
 		}
@@ -94,6 +113,8 @@
 		closedSet.push(cMin.id());
 		// Remove cMin from boundary nodes
 		openSet.splice(minPos, 1);
+		logDebug("Added node to closedSet, removed from openSet.");
+		logDebug("Processing neighbors...");
 
 		// Update scores for neighbors of cMin
 		// Take into account if graph is directed or not
@@ -103,38 +124,47 @@
 		    var e = vwEdges[i];
 		    var w = e.connectedNodes('[id != "' + cMin.id() + '"]').intersect(nodes);
 
+		    logDebug("   processing neighbor: " + w.id());
 		    // if node is in closedSet, ignore it
 		    if (closedSet.indexOf(w.id()) != -1) {
+			logDebug("   already in closedSet, ignoring it.");
 			continue;
 		    }
 		    
 		    // New tentative score for node w
 		    var tempScore = gScore[cMin.id()] + weightFn(e);
+		    logDebug("   tentative gScore: " + tempScore);
 
 		    // Update gScore for node w if:
 		    //   w not present in openSet
 		    // OR
 		    //   tentative gScore is less than previous value
+
+		    // w not in openSet
 		    if (openSet.indexOf(w) == -1) {
 			gScore[w.id()] = tempScore;
 			fScore[w.id()] = tempScore + heuristic(w, target);
 			openSet.push(w); // Add node to openSet
 			cameFrom[w.id()] = cMin.id();
+			logDebug("   not in openSet, adding it. ");
+			logDebug("   fScore(" + w.id() + ") = " + tempScore);
 			continue;
 		    }
-		    // w already in openSet
+		    // w already in openSet, but with greater gScore
 		    if (tempScore < gScore[w.id()]) {
 			gScore[w.id()] = tempScore;
 			fScore[w.id()] = tempScore + heuristic(w, target);
 			cameFrom[w.id()] = cMin.id();
+			logDebug("   better score, replacing gScore. ");
+			logDebug("   fScore(" + w.id() + ") = " + tempScore);
 		    }
 
 		} // End of neighbors update
 
-
 	    } // End of main loop
 
 	    // If we've reached here, then we've not reached our goal
+	    logDebug("Reached end of computation without finding our goal");
 	    return {
 		found : false
 		, cost : Infinity
