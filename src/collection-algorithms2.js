@@ -7,7 +7,7 @@
 	// implemented from pseudocode from wikipedia
 	aStar: function(root, goal, directed, heuristic, weightFn) {
 	
-	    var debug = true;
+	    var debug = false;
 	    
 	    var logDebug = function(text) {
 		if (debug) {

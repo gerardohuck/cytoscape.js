@@ -161,4 +161,48 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
     expect( kruskal.same( eles(a, b, c, d, e, ae, cd, ab, bc) ) );
   });
 
+
+  it('eles.kruskal()', function(){
+    var kruskal = cy.elements().kruskal( function(){
+      return this.data('weight');
+    } );
+
+    expect( kruskal.same( eles(a, b, c, d, e, ae, cd, ab, bc) ) );
+  });
+
+
+  it('eles.aStar(): undirected, no heuristic, unweighted', function(){
+      var res = cy.elements().aStar(a, 
+                                    b,
+                                    false);
+      expect( res.found ).to.equal(true);
+      expect( res.cost ).to.equal(1);
+      expect( res.path ).to.deep.equal(["a", "b"]);
+  });
+
+  it('eles.aStar(): undirected, no heuristic, unweighted (2)', function(){
+      var res = cy.elements().aStar(a, 
+                                    d,
+                                    false);
+      expect( res.found ).to.equal(true);
+      expect( res.cost ).to.equal(2);
+      expect( res.path ).to.deep.equal(["a", "e", "d"]);
+  });
+
+  it('eles.aStar(): directed, no heuristic, unweighted', function(){
+      var res = cy.elements().aStar(c, 
+                                    a,
+                                    true);
+      expect( res.found ).to.equal(false);
+  });
+
+  it('eles.aStar(): directed, no heuristic, unweighted (2)', function(){
+      var res = cy.elements().aStar(a, 
+                                    d,
+                                    true);
+      expect( res.found ).to.equal(true);
+      expect( res.cost ).to.equal(3);
+      expect( res.path ).to.deep.equal(["a", "b", "c", "d"]);
+  });
+
 });
