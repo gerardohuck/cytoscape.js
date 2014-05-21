@@ -45,9 +45,9 @@
 		    return undefined;
 		}
 		var minPos = 0;
-		var tempScore = fScore[openSet[0].id()];
+		var tempScore = fScore[openSet[0]];
 		for (var i = 1; i < openSet.length; i++) {
-		    var s = fScore[openSet[i].id()];
+		    var s = fScore[openSet[i]];
 		    if (s < tempScore) {
 			tempScore = s;
 			minPos = i;
@@ -72,7 +72,7 @@
 	    logDebug("Target node: " + target.id()); 
 
 	    var closedSet = [];
-	    var openSet = [source];
+	    var openSet = [source.id()];
 	    var cameFrom = {};
 	    var gScore = {};
 	    var fScore = {};
@@ -89,7 +89,7 @@
 	    // Main loop 
 	    while (openSet.length > 0) {
 		var minPos = findMin(openSet, fScore);
-		var cMin = openSet[minPos];
+		var cMin = this.filter("#" + openSet[minPos])[0];
 		steps++;
 
 		logDebug("\nStep: " + steps);
@@ -141,10 +141,10 @@
 		    //   tentative gScore is less than previous value
 
 		    // w not in openSet
-		    if (openSet.indexOf(w) == -1) {
+		    if (openSet.indexOf(w.id()) == -1) {
 			gScore[w.id()] = tempScore;
 			fScore[w.id()] = tempScore + heuristic(w, target);
-			openSet.push(w); // Add node to openSet
+			openSet.push(w.id()); // Add node to openSet
 			cameFrom[w.id()] = cMin.id();
 			logDebug("   not in openSet, adding it. ");
 			logDebug("   fScore(" + w.id() + ") = " + tempScore);
