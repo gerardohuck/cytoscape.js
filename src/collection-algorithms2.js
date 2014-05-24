@@ -87,6 +87,16 @@
 		return undefined;
 	    }
 	    
+	    // goal - mandatory!
+	    if (typeof options.goal !== undefined) {		
+		var target = $$.is.string(options.goal) ? 
+		    this.filter("#" + options.goal)[0] : 
+		    options.goal[0];
+		logDebug("Target node: " + target.id()); 
+	    } else {
+		return undefined;
+	    }
+
 	    // Heuristic function - optional
 	    if (typeof options.heuristic !== undefined && $$.is.fn(options.heuristic)) {		
 		var heuristic = options.heuristic;
@@ -98,21 +108,12 @@
 
 	    // Weight function - optional
 	    if (typeof options.weight !== undefined && $$.is.fn(options.weight)) {		
-		var weightFn = options.heuristic;
+		var weightFn = options.weight;
 	    } else {
 		// If not specified, assume each edge has equal weight (1)
 		var weightFn = function(e) {return 1;};
 	    }
 
-	    // goal - optional
-	    if (typeof options.goal !== undefined) {		
-		var target = $$.is.string(options.goal) ? 
-		    this.filter("#" + options.goal)[0] : 
-		    options.goal[0];
-		logDebug("Target node: " + target.id()); 
-	    } else {
-		var target = undefined;
-	    }
 
 	    // directed - optional
 	    if (typeof options.directed !== undefined) {		
@@ -185,7 +186,7 @@
 		    }
 		    
 		    // New tentative score for node w
-		    var tempScore = gScore[cMin.id()] + weightFn(e);
+		    var tempScore = gScore[cMin.id()] + weightFn.apply(e, [e]);
 		    logDebug("   tentative gScore: " + tempScore);
 
 		    // Update gScore for node w if:
