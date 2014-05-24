@@ -4,11 +4,20 @@
     // Additional graph analysis algorithms
     $$.fn.eles({
 
-	// implemented from pseudocode from wikipedia
-	aStar: function(root, goal, directed, heuristic, weightFn) {
-	
-	    var debug = false;
-	    
+	// Implemented from pseudocode from wikipedia
+
+	// options => options object
+	//    root // starting node (either element or selector string)
+	//    weight: function( edge ){} // specifies weight to use for `edge`/`this`
+	//    heuristic: function( node ){} // specifies heuristic value for `node`/`this`
+	//    directed // default false
+	//    goal // target node (either element or selector string). Optional. If present, computation will end if path to goal is found
+
+	// retObj => returned object by function
+	// distanceTo: function( node ){} // returns numeric total to specified destination node, may be undefined if no path or exited early so no path found
+	// pathTo: function( node ){} // returns path collection in node-edge-node order, may be empty collection if no path
+	aStar: function(options) {
+
 	    var logDebug = function(text) {
 		if (debug) {
 		    console.log(text);
@@ -56,20 +65,64 @@
 		return minPos;
 	    };
 
+
+	    // Parse options
+	    // debug - optional
+	    if (typeof options.debug !== undefined) {
+		var debug = options.debug;
+	    } else {
+		var debug = false;
+	    }
+	    
 	    logDebug("Starting aStar."); 
-
 	    var cy = this._private.cy;
-	    // If not specified, assume zero constant heuristic
-	    // It will be exactly as running Dijkstra
-	    heuristic = $$.is.fn(heuristic) ? heuristic : function(a,b) {return 0;};
-	    // If not specified, assume each edge has equal weight (1)
-	    weightFn = $$.is.fn(weightFn) ? weightFn : function(a) {return 1;};
 
-	    var source = $$.is.string(root) ? this.filter("#" + root)[0] : root[0];
-	    var target = $$.is.string(goal) ? this.filter("#" + goal)[0] : goal[0];
+	    // root - mandatory!
+	    if (typeof options.root !== undefined) {		
+		var source = $$.is.string(options.root) ? 
+		    this.filter("#" + options.root)[0] : 
+		    options.root[0];
+		logDebug("Source node: " + source.id()); 
+	    } else {
+		return undefined;
+	    }
+	    
+	    // Heuristic function - optional
+	    if (typeof options.heuristic !== undefined && $$.is.fn(options.heuristic)) {		
+		var heuristic = options.heuristic;
+	    } else {
+		// If not specified, assume zero constant heuristic
+		// It will be exactly as running Dijkstra
+		var heuristic = function(a,b) {return 0;};
+	    }
 
-	    logDebug("Source node: " + source.id()); 
-	    logDebug("Target node: " + target.id()); 
+	    // Weight function - optional
+	    if (typeof options.weight !== undefined && $$.is.fn(options.weight)) {		
+		var weightFn = options.heuristic;
+	    } else {
+		// If not specified, assume each edge has equal weight (1)
+		var weightFn = function(e) {return 1;};
+	    }
+
+	    // goal - optional
+	    if (typeof options.goal !== undefined) {		
+		var target = $$.is.string(options.goal) ? 
+		    this.filter("#" + options.goal)[0] : 
+		    options.goal[0];
+		logDebug("Target node: " + target.id()); 
+	    } else {
+		var target = undefined;
+	    }
+
+	    // directed - optional
+	    if (typeof options.directed !== undefined) {		
+		var directed = options.directed;
+	    } else {
+		var directed = false;
+	    }
+
+
+
 
 	    var closedSet = [];
 	    var openSet = [source.id()];

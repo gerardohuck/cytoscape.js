@@ -172,34 +172,36 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
 
 
   it('eles.aStar(): undirected, no heuristic, unweighted', function(){
-      var res = cy.elements().aStar(a, 
-                                    b,
-                                    false);
+      var options = {root: a, 
+		     goal: b};
+      var res = cy.elements().aStar(options);
       expect( res.found ).to.equal(true);
       expect( res.cost ).to.equal(1);
       expect( res.path ).to.deep.equal(["a", "b"]);
   });
 
   it('eles.aStar(): undirected, no heuristic, unweighted (2)', function(){
-      var res = cy.elements().aStar(a, 
-                                    d,
-                                    false);
+      var options = {root: a, 
+		     goal: d};
+      var res = cy.elements().aStar(options);
       expect( res.found ).to.equal(true);
       expect( res.cost ).to.equal(2);
       expect( res.path ).to.deep.equal(["a", "e", "d"]);
   });
 
   it('eles.aStar(): directed, no heuristic, unweighted', function(){
-      var res = cy.elements().aStar(c, 
-                                    a,
-                                    true);
+      var options = {root: c, 
+		     goal: a, 
+		     directed: true};
+      var res = cy.elements().aStar(options);
       expect( res.found ).to.equal(false);
   });
 
   it('eles.aStar(): directed, no heuristic, unweighted (2)', function(){
-      var res = cy.elements().aStar(a, 
-                                    d,
-                                    true);
+      var options = {root: a, 
+		     goal: d, 
+		     directed: true};
+      var res = cy.elements().aStar(options);
       expect( res.found ).to.equal(true);
       expect( res.cost ).to.equal(3);
       expect( res.path ).to.deep.equal(["a", "b", "c", "d"]);
