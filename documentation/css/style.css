@@ -1,7 +1,12 @@
+* {
+	outline: 0;
+}
+
 body {
 	font: 14pt Helvetica Neue, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
-	-webkit-text-size-adjust: 100%
+	-webkit-text-size-adjust: 100%;
+	background: #fff;
 }
 
 body, html {
@@ -99,6 +104,23 @@ button:active {
 	margin-top: 0.25em;
 }
 
+.important-indicator {
+	font-family: FontAwesome;
+	font-weight: normal;
+	font-style: normal;
+	text-decoration: inherit;
+	-webkit-font-smoothing: antialiased;
+	*margin-right: .3em;
+}
+
+.important-indicator:before {
+	text-decoration: inherit;
+	display: inline-block;
+	speak: none;
+	content: "\f069";
+	color: #BD1A1D;
+}
+
 #navigation {
 	position: fixed;
 	left: 0;
@@ -139,6 +161,10 @@ button:active {
 	text-align: center;
 }
 
+#navigation .bookmark-icon {
+	opacity: 0.333;
+}
+
 #navigation .expander .collapsed-icon {
 	display: none;
 }
@@ -159,9 +185,93 @@ button:active {
 	display: none;
 }
 
+.gallery-demos:after {
+	display: block;
+	content: ' ';
+	height: 0;
+	clear: both;
+}
+
+.gallery-demo {
+	position: relative;
+	float: left;
+	margin: 0 1em 1em 0;
+}
+
+.gallery-title {
+	font-size: 0.8em;
+}
+
+.gallery-name {
+	
+}
+
+.gallery-embed,
+.gallery-link-overlay {
+	display: block;
+	width: 10em;
+	height: 10em;
+	border: 1px solid #ddd;
+	border-radius: 0.25em;
+}
+
+.gallery-link-overlay {
+	position: absolute;
+}
+
+.gallery-embed {
+	pointer-events: none;
+	background: #fafafa;
+}
+
+.gallery-embed + .gallery-loader {
+	display: block;
+	position: absolute;
+	left: 0;
+	width: 100%;
+	text-align: center;
+	top: 50%;
+	font-size: 3em;
+	margin-top: -0.5em;
+	color: #888;
+}
+
+.gallery-footer {
+	font-size: 0.8em;
+	display: none;
+}
+
+.gallery-embed.loaded + .gallery-loader {
+	display: none;
+}
+
+.gallery-link {
+	float: right;
+}
+
+.gallery-footer {
+	margin-top: -0.5em;
+}
+
 #content {
 	margin: 0 0.25em;
 	margin-left: 16em;
+}
+
+#content:before {
+	content : '';
+	display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+	width: 10em;
+	height: 10em;
+	background-image: url('../img/cytoscape-logo.svg');
+	background-size: 100% 100%;
+	background-position: top left;
+	background-repeat: no-repeat;
+	opacity: 0.04;
+	z-index: -1;
 }
 
 #demo, #demo-source {
@@ -321,10 +431,22 @@ hr {
 	border: 0;
 }
 
-a {
+th {
+	font-weight: bold;
+	text-align: left;
+}
+
+th, td {
+	padding: 0.25em 0.5em;
+	border: 1px solid #ddd;
+}
+
+a,
+.link {
 	color: #4183C4;
 	text-decoration: none;
 	border-radius: 0.125em;
+	cursor: pointer;
 }
 
 a.button {
@@ -344,8 +466,13 @@ a.button.green {
 	background: #41C483;
 }
 
-a:active {
+a:active,
+.link:active {
 	box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.plain-link {
+	color: #000;
 }
 
 em {
@@ -371,7 +498,7 @@ pre {
 }
 
 pre {
-	margin: 1.25em 0;
+	margin: 0.25em 0;
 	overflow-x: auto;
 	/* -webkit-overflow-scrolling: touch; */
 }
@@ -392,11 +519,14 @@ pre code {
 }
 
 .function {
-	padding: 1em 0;
+	margin: 1em 0;
+	padding: 0.25em 0.5em;
+	border: 1px solid #e0e0e0;
+	border-radius: 0.25em;
 }
 
 .function + .function {
-	border-top: 1px dashed #888;
+	
 }
 
 .function .name {
@@ -409,7 +539,6 @@ pre code {
 
 .function > .formats,
 .function > .details {
-	padding-left: 0.25em;
 	margin: 0.25em 0;
 }
 
@@ -418,6 +547,14 @@ pre code {
 	border: 1px solid #ddd;
 	background: #fafafa;
 	border-radius: 0.25em;
+}
+
+.function .formats p {
+	display: inline;
+}
+
+.function .formats .args .name {
+	font-weight: bold;
 }
 
 .function .comma:first-child {
@@ -429,8 +566,8 @@ pre code {
 	font-size: 0.8em;
 }
 
-.function .format {
-	margin-bottom: 0.5em;
+.function .format + .format {
+	margin-top: 0.5em;
 }
 
 .function .format > .descr {

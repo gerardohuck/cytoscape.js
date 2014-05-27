@@ -1,4 +1,4 @@
-# cytoscape.js
+# Cytoscape.js
 
 
 
@@ -21,7 +21,7 @@ If your pull request is a bugfix, please make changes to the master branch.  Oth
 
 ## Acknowledgements
 
-Arbor was used in one of Cytoscape.js's included layouts.  We made some modifications to the library, written by Samizdat Drafting Co., so that it would work with multiple instances of Cytoscape.js and that it would work on lesser browsers, like IE.  Information about this library can be found at the [Arbor website](http://arborjs.org/) and on [GitHub](https://github.com/maxkfranz/arbor) where the original code was forked.
+Arbor was used in one of Cytoscape.js' included layouts.  We made some modifications to the library, written by Samizdat Drafting Co., so that it would work with multiple instances of Cytoscape.js and that it would work on lesser browsers, like IE.  Information about this library can be found at the [Arbor website](http://arborjs.org/) and on [GitHub](https://github.com/maxkfranz/arbor) where the original code was forked.
 
 
 
@@ -50,19 +50,28 @@ Install `npm` and `gulp`.  Of course, `npm install` before using `gulp`.
 
 Run `gulp` in the console.  The main targets are:
 
+**Building:**
  * `build` : build the library
  * `zip` : build the release ZIP
  * `clean` : clean the `build` directory
- * `testrefs` : update JS lib file refs in the tests page
- * `testlist` : update list of test JS files in tests page
- * `debugrefs` : update JS lib file refs in debug page
+ * `dist` : update the distribution JS for npm, bower, etc.
+
+**File references:**
+ * `refs` : update all refs
+  * `testrefs` : update JS lib file refs in the tests page
+  * `testlist` : update list of test JS files in tests page
+  * `debugrefs` : update JS lib file refs in debug page
+
+**Testing:**
  * `test` : run the Mocha unit tests
+ * `lint` : lint the JS sources via jshint
+ * `watch` : update JS refs in HTML files (debug page, test page) automatically when JS files are added or deleted
+
+**Documenation:**
  * `docs` : build the documentation template
  * `docsmin` : build the documentation template with all resources minified
  * `docspub` : build the documentation for publishing (ZIPs, JS refs, etc.)
- * `dist` : update the distribution JS for npm, bower, etc.
- * `pub` : publish a new version of Cytoscape.js
- * `watch` : update JS refs in HTML files automatically when JS files are added or deleted
+
 
 
 
@@ -71,6 +80,8 @@ Run `gulp` in the console.  The main targets are:
 
  1. Update the `VERSION` environment variable, e.g. `export VERSION=1.2.3`.
  1. Confirm `VERSION` is picked up by gulp: `gulp version`.
+ 1. Confirm JS files pass linting: `gulp lint`
+ 1. Confirm all tests passing: `gulp test`
  1. Build and publish the release: `gulp pub`, and then...
   1. Make sure all your changes are pushed.
   1. Create a tag for this version in `git` (e.g. `gulp tag`)

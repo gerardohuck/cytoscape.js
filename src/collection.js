@@ -179,7 +179,7 @@
         // make sure newly created elements have valid ids
         if( data.id == null ){
           data.id = idFactory.generate( cy, json );
-        } else if( cy.getElementById( data.id ).length != 0 || elesIds[ data.id ] ){
+        } else if( cy.getElementById( data.id ).length !== 0 || elesIds[ data.id ] ){
           continue; // can't create element if prior id already exists
         }
 
@@ -244,7 +244,7 @@
 
   $$.elesfn.json = function(){
     var ele = this.element();
-    if( ele == null ){ return undefined }
+    if( ele == null ){ return undefined; }
 
     var p = ele._private;
     
@@ -338,7 +338,7 @@
         
         // can't create element if it has empty string as id or non-string id
         continue;
-      } else if( cy.getElementById( data.id ).length != 0 ){
+      } else if( cy.getElementById( data.id ).length !== 0 ){
         $$.util.error('Can not create second element with ID `' + data.id + '`');
         
         // can't create element if one already has that id
@@ -360,11 +360,11 @@
           
           if( val == null || val === '' ){
             // can't create if source or target is not defined properly
-            $$.util.error('Can not create edge `' + data.id + '` with unspecified ' + field);
+            $$.util.error('Can not create edge `' + id + '` with unspecified ' + field);
             badSourceOrTarget = true;
           } else if( cy.getElementById(val).empty() ){ 
             // can't create edge if one of its nodes doesn't exist
-            $$.util.error('Can not create edge `' + data.id + '` with nonexistant ' + field + ' `' + val + '`');
+            $$.util.error('Can not create edge `' + id + '` with nonexistant ' + field + ' `' + val + '`');
             badSourceOrTarget = true;
           }
         }
@@ -384,7 +384,7 @@
        
       // create mock ids map for element so it can be used like collections
       _private.ids = {};
-      _private.ids[ data.id ] = ele;
+      _private.ids[ id ] = ele;
 
       _private.removed = false;
       cy.addToPool( ele );
@@ -396,7 +396,6 @@
     for( var i = 0; i < numNodes; i++ ){ // each node 
       var node = elements[i];
       var data = node._private.data;
-      var id = data.id;
 
       var parentId = node._private.data.parent;
       var specifiedParent = parentId != null;

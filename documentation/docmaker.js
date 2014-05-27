@@ -13,16 +13,18 @@ var demoFile = './js/load.js';
 try {
   config = require(configFile);
 } catch(e){
-  throw '`' + configFile + '` could not be read; check the JSON is formatted correctly http://pro.jsonlint.com/';
+  throw '`' + configFile + '` could not be read; check the JSON is formatted correctly http://pro.jsonlint.com/ : ' + e;
 }
 
 // load the demo file
 try {
   config.demojs = fs.readFileSync(demoFile, 'utf8');
 
+  config.demojs = config.demojs.match(/\/\/\<demo\>\s*((?:\s|.)+?)\s*\/\/\<\/demo\>/)[1];
+
   config.demojs = hljs.highlight('js', config.demojs).value;
 } catch(e){
-  throw '`' + demoFile + '` could not be read';
+  throw '`' + demoFile + '` could not be read and parsed: ' + e;
 }
 
 // var html = converter.makeHtml("**I am bold!**");
@@ -115,6 +117,17 @@ function compileConfig( config ){
       section.descr = md2html( section.mddescr );
     }
 
+    if( section.demos ){
+      var demos = section.demos;
+
+      for( var j = 0; j < demos.length; j++ ){
+        var demo = demos[j];
+
+        demo.embedUrl = 'http://jsbin.com/' + demo.id + '/latest';
+        demo.srcUrl = 'http://jsbin.com/' + demo.id + '/latest/edit?js,output';
+      }
+    }
+
     if( section.fns ){
       var fns = section.fns;
       for( var j = 0; j < fns.length; j++ ){
@@ -135,13 +148,20 @@ function compileConfig( config ){
         }
 
         var formatsHaveDiffNames = false;
-        if( fn.formats && !fn.formatsSameFn ){
+        if( fn.formats ){
           var formats = fn.formats;
 
           for( var k = 0; k < formats.length; k++ ){
             var format = formats[k];
 
             format.name = format.name || fn.name; // copy name to format if not specified
+            format.descr = marked( format.descr || '' );
+
+            if( format.args ){
+              for( var m = 0; m < format.args.length; m++ ){
+                format.args[m].descr = marked( format.args[m].descr || '' );
+              }
+            }
 
             if( format.name !== fn.name ){
               formatsHaveDiffNames = true;

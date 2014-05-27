@@ -36,21 +36,6 @@
 
       var innerNodes = node.descendants();
 
-      var hasNonAutoParent = function(ele){
-        while( ele.parent().nonempty() && ele.parent().id() !== node.id() ){
-          parent = ele.parent()[0];
-          var pstyle = parent._private.style;
-
-          if( pstyle.width.value !== 'auto' || pstyle.height.value !== 'auto' ){
-            return true;
-          }
-
-          ele = ele.parent();
-        }
-
-        return false;
-      };
-
       // TODO do not drag hidden children & children of hidden children?
       for (var i=0; i < innerNodes.size(); i++)
       {
@@ -125,7 +110,7 @@
     };
 
     CanvasRenderer.prototype.nodeIsDraggable = function(node) {
-      if (node._private.style['opacity'].value != 0
+      if (node._private.style['opacity'].value !== 0
         && node._private.style['visibility'].value == 'visible'
         && node._private.style['display'].value == 'element'
         && !node.locked()
@@ -135,11 +120,11 @@
       }
       
       return false;
-    }
+    };
 
     // auto resize
     r.registerBinding(window, 'resize', $$.util.debounce( function(e) {
-      r.containerBB = null; // invalidate bb cache
+      r.invalidateContainerClientCoordsCache();
 
       r.matchCanvasSize(r.data.container);
       r.data.canvasNeedsRedraw[CanvasRenderer.NODE] = true;
@@ -148,7 +133,7 @@
 
     var invalCtnrBBOnScroll = function(domEle){
       r.registerBinding(domEle, 'scroll', function(e){
-        r.containerBB = null; // invalidate bb cache
+        r.invalidateContainerClientCoordsCache();
       } );
     };
 
@@ -184,7 +169,6 @@
       var cy = r.data.cy; var pos = r.projectIntoViewport(e.clientX, e.clientY);
       var select = r.data.select;
       var near = r.findNearestElement(pos[0], pos[1], true);
-      var down = r.hoverData.down;
       var draggedElements = r.dragData.possibleDragElements;
       var grabEvent = new $$.Event('grab');
 
@@ -324,7 +308,7 @@
         // Selection box
         if ( near == null || near.isEdge() ) {
           select[4] = 1;
-          var timeUntilActive = Math.max( 0, CanvasRenderer.panOrBoxSelectDelay - (+new Date - r.hoverData.downTime) );
+          var timeUntilActive = Math.max( 0, CanvasRenderer.panOrBoxSelectDelay - (+new Date() - r.hoverData.downTime) );
 
           clearTimeout( r.bgActiveTimeout );
           r.bgActiveTimeout = setTimeout(function(){
@@ -381,13 +365,8 @@
       var down = r.hoverData.down;
       
       var disp = [pos[0] - select[2], pos[1] - select[3]];
-      var nodes = r.getCachedNodes();
-      var edges = r.getCachedEdges();
-    
-      var draggedElements = r.dragData.possibleDragElements;
-    
 
-      var shiftDown = e.shiftKey;
+      var draggedElements = r.dragData.possibleDragElements;
       
 
       preventDefault = true;
@@ -484,7 +463,7 @@
 
       // Checks primary button down & out of time & mouse not moved much
       } else if (select[4] == 1 && (down == null || down.isEdge())
-          && ( !cy.boxSelectionEnabled() || +new Date - r.hoverData.downTime >= CanvasRenderer.panOrBoxSelectDelay )
+          && ( !cy.boxSelectionEnabled() || +new Date() - r.hoverData.downTime >= CanvasRenderer.panOrBoxSelectDelay )
           && (Math.abs(select[3] - select[1]) + Math.abs(select[2] - select[0]) < 4)
           && cy.panningEnabled() && cy.userPanningEnabled() ) {
         
@@ -586,11 +565,12 @@
     r.registerBinding(window, 'mouseup', function(e) {
       // console.log('--\nmouseup', e)
 
-      var capture = r.hoverData.capture; if (!capture) { return; }; r.hoverData.capture = false;
+      var capture = r.hoverData.capture;
+      if (!capture) { return; }
+      r.hoverData.capture = false;
     
       var cy = r.data.cy; var pos = r.projectIntoViewport(e.clientX, e.clientY); var select = r.data.select;
-      var near = r.findNearestElement(pos[0], pos[1], true);
-      var nodes = r.getCachedNodes(); var edges = r.getCachedEdges(); 
+      var near = r.findNearestElement(pos[0], pos[1], true); 
       var draggedElements = r.dragData.possibleDragElements; var down = r.hoverData.down;
       var shiftDown = e.shiftKey;
       
@@ -705,7 +685,7 @@
         {
           // console.log('trigger click et al');
 
-          if (Math.pow(select[2] - select[0], 2) + Math.pow(select[3] - select[1], 2) == 0) {
+          if (Math.pow(select[2] - select[0], 2) + Math.pow(select[3] - select[1], 2) === 0) {
             if (near != null) {
               near
                 .trigger( new $$.Event(e, {
@@ -788,23 +768,18 @@
           }
         }
         
-        if ( cy.boxSelectionEnabled() &&  Math.pow(select[2] - select[0], 2) + Math.pow(select[3] - select[1], 2) > 7 && select[4] ) {
-          // console.log('box selection');
-          
+        if ( cy.boxSelectionEnabled() &&  Math.pow(select[2] - select[0], 2) + Math.pow(select[3] - select[1], 2) > 7 && select[4] ) {         
           var newlySelected = [];
-          var box = r.getAllInBox(select[0], select[1], select[2], select[3]);
+          var box = r.getAllInBox( select[0], select[1], select[2], select[3] );
 
           r.data.canvasNeedsRedraw[CanvasRenderer.SELECT_BOX] = true;
 
-          if (box.length > 0) { 
+          if( box.length > 0 ) { 
             r.data.canvasNeedsRedraw[CanvasRenderer.NODE] = true; 
           }
 
-          // console.log(box);
-          var event = new $$.Event(e, {type: 'select'});
-          for (var i=0;i<box.length;i++) { 
-            if (box[i]._private.selectable) {
-              draggedElements.push( box[i] ); 
+          for( var i = 0; i < box.length; i++ ){ 
+            if( box[i]._private.selectable ){
               newlySelected.push( box[i] );
             }
           }
@@ -821,7 +796,7 @@
             newlySelCol.select();
           }
 
-          if (box.length === 0) { 
+          if( newlySelected.length === 0 ){
             r.redraw();
           }
           
@@ -841,10 +816,11 @@
           r.data.canvasNeedsRedraw[CanvasRenderer.DRAG] = true; 
           r.data.canvasNeedsRedraw[CanvasRenderer.NODE] = true; 
           
-          for (var i=0;i<draggedElements.length;i++) {
+          for (var i=0; i<draggedElements.length; i++) {
             
             if (draggedElements[i]._private.group == 'nodes') { 
               draggedElements[i]._private.rscratch.inDragLayer = false;
+              draggedElements[i]._private.grabbed = false;
               
               var sEdges = draggedElements[i]._private.edges;
               for (var j=0;j<sEdges.length;j++) { sEdges[j]._private.rscratch.inDragLayer = false; }
@@ -902,10 +878,13 @@
       
         var diff = e.wheelDeltaY / 1000 || e.wheelDelta / 1000 || e.detail / -32 || -e.deltaY / 500;
 
-        cy.zoom({level: cy.zoom() * Math.pow(10, diff), renderedPosition: {x: rpos[0], y: rpos[1]}});
+        cy.zoom({
+          level: cy.zoom() * Math.pow(10, diff),
+          renderedPosition: { x: rpos[0], y: rpos[1] }
+        });
       }
 
-    }
+    };
     
     // Functions to help with whether mouse wheel should trigger zooming
     // --
@@ -942,7 +921,7 @@
     var distance1; // initial distance between finger 1 and finger 2 for pinch-to-zoom
     var center1, modelCenter1; // center point on start pinch to zoom
     var offsetLeft, offsetTop;
-    var containerWidth = r.canvasWidth, containerHeight = r.canvasHeight;
+    var containerWidth, containerHeight;
     var twoFingersStartInside;
 
     var distance = function(x1, y1, x2, y2){
@@ -978,13 +957,15 @@
             eles[i]._private.rscratch.inDragLayer = false;
             if( eles[i].active() ){ eles[i].unactivate(); }
           }
-        }
+        };
         release(nodes);
         release(edges);
 
         var offsets = r.findContainerClientCoords();
-        offsetTop = offsets[1];
         offsetLeft = offsets[0];
+        offsetTop = offsets[1];
+        containerWidth = offsets[2];
+        containerHeight = offsets[3];
 
         f1x1 = e.touches[0].clientX - offsetLeft;
         f1y1 = e.touches[0].clientY - offsetTop;
@@ -1174,19 +1155,19 @@
         // Tap, taphold
         // -----
         
-        for (var i=0;i<now.length;i++) {
+        for (var i=0; i<now.length; i++) {
           earlier[i] = now[i];
           r.touchData.startPosition[i] = now[i];
-        };
+        }
         
         r.touchData.singleTouchMoved = false;
-        r.touchData.singleTouchStartTime = +new Date;
+        r.touchData.singleTouchStartTime = +new Date();
         
-        var tapHoldTimeout = setTimeout(function() {
-          if (r.touchData.singleTouchMoved == false
+        setTimeout(function() {
+          if (r.touchData.singleTouchMoved === false
               // This time double constraint prevents multiple quick taps
               // followed by a taphold triggering multiple taphold events
-              && (+new Date) - r.touchData.singleTouchStartTime > 250) {
+              && (+new Date()) - r.touchData.singleTouchStartTime > 250) {
             if (r.touchData.start) {
               r.touchData.start.trigger( new $$.Event(e, {
                 type: 'taphold',
@@ -1216,10 +1197,9 @@
     
       var select = r.data.select;
       var capture = r.touchData.capture; //if (!capture) { return; }; 
-      capture && e.preventDefault();
+      if( capture ){ e.preventDefault(); }
     
       var cy = r.data.cy; 
-      var nodes = r.getCachedNodes(); var edges = r.getCachedEdges();
       var now = r.touchData.now; var earlier = r.touchData.earlier;
       
       if (e.touches[0]) { var pos = r.projectIntoViewport(e.touches[0].clientX, e.touches[0].clientY); now[0] = pos[0]; now[1] = pos[1]; }
@@ -1304,7 +1284,7 @@
       } else if( capture && e.touches[2] && cy.boxSelectionEnabled() ){
         r.data.bgActivePosistion = undefined;
         clearTimeout( this.threeFingerSelectTimeout );
-        this.lastThreeTouch = +new Date;
+        this.lastThreeTouch = +new Date();
 
         r.data.canvasNeedsRedraw[CanvasRenderer.SELECT_BOX] = true;
 
@@ -1384,6 +1364,27 @@
 
           // console.log(pan2);
           // console.log(zoom2);
+
+          // remove dragged eles
+          if( r.touchData.start ){
+            var draggedEles = r.dragData.touchDragEles;
+
+            if( draggedEles ){ for( var i = 0; i < draggedEles.length; i++ ){
+              draggedEles[i]._private.grabbed = false;
+              draggedEles[i]._private.rscratch.inDragLayer = false;
+            } }
+
+            r.touchData.start._private.active = false;
+            r.touchData.start._private.grabbed = false;
+            r.touchData.start._private.rscratch.inDragLayer = false;
+
+            r.data.canvasNeedsRedraw[CanvasRenderer.DRAG] = true;
+
+            r.touchData.start
+              .trigger('free')
+              .trigger('unactivate')
+            ;
+          }
 
           cy._private.zoom = zoom2;
           cy._private.pan = pan2;
@@ -1546,7 +1547,7 @@
         }
       }
 
-      for (var j=0;j<now.length;j++) { earlier[j] = now[j]; };
+      for (var j=0; j<now.length; j++) { earlier[j] = now[j]; }
       //r.redraw();
       
     }, 1000/30), false);
@@ -1579,8 +1580,8 @@
       r.hoverData.draggingEles = false;
       
       var cy = r.data.cy; 
-      var nodes = r.getCachedNodes(); var edges = r.getCachedEdges();
-      var now = r.touchData.now; var earlier = r.touchData.earlier;
+      var now = r.touchData.now;
+      var earlier = r.touchData.earlier;
 
       if (e.touches[0]) { var pos = r.projectIntoViewport(e.touches[0].clientX, e.touches[0].clientY); now[0] = pos[0]; now[1] = pos[1]; }
       if (e.touches[1]) { var pos = r.projectIntoViewport(e.touches[1].clientX, e.touches[1].clientY); now[2] = pos[0]; now[3] = pos[1]; }
@@ -1628,13 +1629,12 @@
         return;
       }
 
-      var nowTime = +new Date;
       // no more box selection if we don't have three fingers
       if( !e.touches[2] && cy.boxSelectionEnabled() ){
         clearTimeout( this.threeFingerSelectTimeout );
         //this.threeFingerSelectTimeout = setTimeout(function(){
           var newlySelected = [];
-          var box = r.getAllInBox(select[0], select[1], select[2], select[3]);
+          var box = r.getAllInBox( select[0], select[1], select[2], select[3] );
 
           select[0] = undefined;
           select[1] = undefined;
@@ -1645,14 +1645,13 @@
           r.data.canvasNeedsRedraw[CanvasRenderer.SELECT_BOX] = true;
 
           // console.log(box);
-          var event = new $$.Event('select');
-          for (var i=0;i<box.length;i++) { 
-            if (box[i]._private.selectable) {
+          for( var i = 0; i< box.length; i++ ) { 
+            if( box[i]._private.selectable ){
               newlySelected.push( box[i] );
             }
           }
 
-          var newlySelCol = (new $$.Collection( cy, newlySelected ));
+          var newlySelCol = new $$.Collection( cy, newlySelected );
 
           if( cy.selectionType() === 'single' ){
             cy.$(':selected').not( newlySelCol ).unselect();
@@ -1660,8 +1659,10 @@
 
           newlySelCol.select();
           
-          if (box.length > 0) { 
+          if( newlySelCol.length > 0 ) { 
             r.data.canvasNeedsRedraw[CanvasRenderer.NODE] = true; 
+          } else {
+            r.redraw();
           }
 
         //}, 100);
@@ -1696,7 +1697,7 @@
 
         if (start != null ) {
 
-          if (start._private.grabbed == true) {
+          if( start._private.grabbed ){
             start._private.grabbed = false;
             start.trigger('free');
             start._private.rscratch.inDragLayer = false;
@@ -1713,6 +1714,7 @@
 
               var selectedNode = selectedNodes[k];
               selectedNode._private.rscratch.inDragLayer = false;
+              selectedNode._private.grabbed = false;
 
               var sEdges = selectedNode._private.edges;
               for (var j=0; j<sEdges.length; j++) {
@@ -1807,7 +1809,7 @@
         }
         
         // Tap event, roughly same as mouse click event for touch
-        if (r.touchData.singleTouchMoved == false) {
+        if ( r.touchData.singleTouchMoved === false ) {
 
           if (start) {
             start
@@ -1839,7 +1841,7 @@
         r.touchData.singleTouchMoved = true;
       }
       
-      for (var j=0;j<now.length;j++) { earlier[j] = now[j]; };
+      for( var j = 0; j < now.length; j++ ){ earlier[j] = now[j]; }
 
       r.dragData.didDrag = false; // reset for next mousedown
 

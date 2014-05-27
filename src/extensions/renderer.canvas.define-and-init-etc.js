@@ -27,7 +27,7 @@
       canvasNeedsRedraw: new Array(CanvasRenderer.CANVAS_LAYERS),
       
       bufferCanvases: new Array(CanvasRenderer.BUFFER_COUNT),
-      bufferContexts: new Array(CanvasRenderer.CANVAS_LAYERS),
+      bufferContexts: new Array(CanvasRenderer.CANVAS_LAYERS)
 
     };
     
@@ -132,6 +132,7 @@
     }
 
     if( params.type === 'load' || params.type === 'resize' ){
+      this.invalidateContainerClientCoordsCache();
       this.matchCanvasSize(this.data.container);
     }
     
@@ -162,7 +163,6 @@
   }
   
   
-  var debug = function(){};
   $$('renderer', 'canvas', CanvasRenderer);
   
 })( cytoscape );
