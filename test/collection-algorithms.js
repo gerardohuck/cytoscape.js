@@ -176,7 +176,7 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
 		     goal: b};
       var res = cy.elements().aStar(options);
       expect( res.found ).to.equal(true);
-      expect( res.cost ).to.equal(1);
+      expect( res.distance ).to.equal(1);
       expect( res.path ).to.deep.equal(["a", "b"]);
   });
 
@@ -185,7 +185,7 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
 		     goal: d};
       var res = cy.elements().aStar(options);
       expect( res.found ).to.equal(true);
-      expect( res.cost ).to.equal(2);
+      expect( res.distance ).to.equal(2);
       expect( res.path ).to.deep.equal(["a", "e", "d"]);
   });
 
@@ -203,8 +203,44 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
 		     directed: true};
       var res = cy.elements().aStar(options);
       expect( res.found ).to.equal(true);
-      expect( res.cost ).to.equal(3);
+      expect( res.distance ).to.equal(3);
       expect( res.path ).to.deep.equal(["a", "b", "c", "d"]);
+  });
+
+  it('eles.aStar(): undirected, no heuristic, weighted', function(){
+      var options = {root: a, 
+		     goal: d, 
+		     directed: false, 
+		     weight: function() {return this.data('weight');}
+		    };
+      var res = cy.elements().aStar(options);
+      expect( res.found ).to.equal(true);
+      expect( res.distance ).to.equal(8);
+      expect( res.path ).to.deep.equal(["a", "e", "d"]);
+  });
+
+  it('eles.aStar(): directed, no heuristic, weighted', function(){
+      var options = {root: a, 
+		     goal: d, 
+		     directed: true, 
+		     weight: function() {return this.data('weight');}
+		    };
+      var res = cy.elements().aStar(options);
+      expect( res.found ).to.equal(true);
+      expect( res.distance ).to.equal(10);
+      expect( res.path ).to.deep.equal(["a", "b", "c", "d"]);
+  });
+
+  it('eles.aStar(): directed, no heuristic, weighted, not found', function(){
+      var options = {root: d, 
+		     goal: a, 
+		     directed: true, 
+		     weight: function() {return this.data('weight');}
+		    };
+      var res = cy.elements().aStar(options);
+      expect( res.found ).to.equal(false);
+      expect( res.distance ).to.equal(undefined);
+      expect( res.path ).to.deep.equal(undefined);
   });
 
 });

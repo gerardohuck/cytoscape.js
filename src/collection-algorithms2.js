@@ -225,7 +225,7 @@
 	    return {
 		found : false
 		, cost : undefined
-		, path : [] 
+		, path : undefined 
 		, steps : steps
 		, distanceTo : undefined
 		, pathTo : undefined
