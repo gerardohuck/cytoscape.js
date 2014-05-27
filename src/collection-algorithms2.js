@@ -18,9 +18,10 @@
 	// pathTo: function( node ){} // returns path collection in node-edge-node order, may be empty collection if no path
 	aStar: function(options) {
 
-	    var logDebug = function(text) {
+	    var logDebug = function() {
 		if (debug) {
-		    console.log(text);
+		    //console.log(text);
+		    console.log.apply(console, arguments);
 		}
 	    };
 
@@ -82,7 +83,7 @@
 		var source = $$.is.string(options.root) ? 
 		    this.filter("#" + options.root)[0] : 
 		    options.root[0];
-		logDebug("Source node: " + source.id()); 
+		logDebug("Source node: %s", source.id()); 
 	    } else {
 		return undefined;
 	    }
@@ -92,7 +93,7 @@
 		var target = $$.is.string(options.goal) ? 
 		    this.filter("#" + options.goal)[0] : 
 		    options.goal[0];
-		logDebug("Target node: " + target.id()); 
+		logDebug("Target node: %s", target.id()); 
 	    } else {
 		return undefined;
 	    }
@@ -103,7 +104,7 @@
 	    } else {
 		// If not specified, assume zero constant heuristic
 		// It will be exactly as running Dijkstra
-		var heuristic = function(a,b) {return 0;};
+		var heuristic = function(a) {return 0;};
 	    }
 
 	    // Weight function - optional
@@ -132,7 +133,7 @@
 	    var fScore = {};
 
 	    gScore[source.id()] = 0;
-	    fScore[source.id()] = heuristic(source, target);
+	    fScore[source.id()] = heuristic(source);
 	    
 	    var edges = this.edges().not(':loop');
 	    var nodes = this.nodes();
@@ -146,20 +147,22 @@
 		var cMin = this.filter("#" + openSet[minPos])[0];
 		steps++;
 
-		logDebug("\nStep: " + steps);
-		logDebug("Processing node: " + cMin.id() + ", fScore = " + fScore[cMin.id()]);
+		logDebug("\nStep: %s", steps);
+		logDebug("Processing node: %s, fScore = %s", cMin.id(), fScore[cMin.id()]);
 		
 		// If we've found our goal, then we are done
 		if (cMin.id() == target.id()) {
 		    logDebug("Found goal node!");
 		    var rPath = reconstructPath(source.id(), target.id(), cameFrom, []);
 		    rPath.reverse();
-		    logDebug("Path: " + rPath);
+		    logDebug("Path: %s", rPath);
 		    return {
 			found : true
-			, cost : gScore[cMin.id()]
+			, distance : gScore[cMin.id()]
 			, path : rPath
 			, steps : steps
+			, distanceTo : undefined
+			, pathTo : undefined
 		    };		    
 		}
 		
@@ -178,7 +181,7 @@
 		    var e = vwEdges[i];
 		    var w = e.connectedNodes('[id != "' + cMin.id() + '"]').intersect(nodes);
 
-		    logDebug("   processing neighbor: " + w.id());
+		    logDebug("   processing neighbor: %s", w.id());
 		    // if node is in closedSet, ignore it
 		    if (closedSet.indexOf(w.id()) != -1) {
 			logDebug("   already in closedSet, ignoring it.");
@@ -187,7 +190,7 @@
 		    
 		    // New tentative score for node w
 		    var tempScore = gScore[cMin.id()] + weightFn.apply(e, [e]);
-		    logDebug("   tentative gScore: " + tempScore);
+		    logDebug("   tentative gScore: %d", tempScore);
 
 		    // Update gScore for node w if:
 		    //   w not present in openSet
@@ -197,20 +200,20 @@
 		    // w not in openSet
 		    if (openSet.indexOf(w.id()) == -1) {
 			gScore[w.id()] = tempScore;
-			fScore[w.id()] = tempScore + heuristic(w, target);
+			fScore[w.id()] = tempScore + heuristic(w);
 			openSet.push(w.id()); // Add node to openSet
 			cameFrom[w.id()] = cMin.id();
 			logDebug("   not in openSet, adding it. ");
-			logDebug("   fScore(" + w.id() + ") = " + tempScore);
+			logDebug("   fScore(%s) = %s", w.id(), tempScore);
 			continue;
 		    }
 		    // w already in openSet, but with greater gScore
 		    if (tempScore < gScore[w.id()]) {
 			gScore[w.id()] = tempScore;
-			fScore[w.id()] = tempScore + heuristic(w, target);
+			fScore[w.id()] = tempScore + heuristic(w);
 			cameFrom[w.id()] = cMin.id();
 			logDebug("   better score, replacing gScore. ");
-			logDebug("   fScore(" + w.id() + ") = " + tempScore);
+			logDebug("   fScore(%s) = %s", w.id(), tempScore);
 		    }
 
 		} // End of neighbors update
@@ -221,9 +224,11 @@
 	    logDebug("Reached end of computation without finding our goal");
 	    return {
 		found : false
-		, cost : Infinity
+		, cost : undefined
 		, path : [] 
 		, steps : steps
+		, distanceTo : undefined
+		, pathTo : undefined
 	    };
 	}
 
