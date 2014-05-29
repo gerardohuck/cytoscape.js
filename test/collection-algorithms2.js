@@ -127,10 +127,11 @@ describe('Graph theory algorithms (advanced) ', function(){
         return Math.sqrt( Math.pow(n1[0] - n2[0], 2) + Math.pow(n1[1] - n2[1], 2));
     };
 
-    it('eles.aStar(): directed, no heuristic, unweighted', function(){
+    it('eles.aStar(): directed, null heuristic, unweighted', function(){
 	var options = {root: nodes[6][1], 
 		       goal: nodes[1][5], 
-		       directed: true
+		       directed: true, 
+		       heuristic: function(a){return 0;}
 		      };
 	var res = cy.elements().aStar(options);
 	expect(res.found).to.equal(true);
@@ -150,11 +151,11 @@ describe('Graph theory algorithms (advanced) ', function(){
 	expect(res.path).to.deep.equal(["6-1", "6-2", "6-3", "6-4", "6-5", "6-6", "5-6", "4-6", "3-6", "2-6"]);
     });
 
-    it('eles.aStar(): undirected, heuristic vs no heuristic (performance), ', function(){
+    it('eles.aStar(): undirected, heuristic vs null heuristic (performance), ', function(){
 	var options1 = {root: nodes[3][3], 
-		       goal: nodes[1][5], 
-		       directed: false, 
-		       heuristic: function(node) {return euclid(node, nodes[1][5]);}
+			goal: nodes[1][5], 
+			directed: false, 
+			heuristic: function(node) {return euclid(node, nodes[1][5]);}
 		      };
 	var res1 = cy.elements().aStar(options1);
 	expect(res1.found).to.equal(true);
@@ -162,8 +163,9 @@ describe('Graph theory algorithms (advanced) ', function(){
 	expect(res1.path).to.deep.equal(["3-3", "4-3", "4-2", "4-1", "3-1", "2-1", "1-1", "1-2", "1-3", "1-4", "1-5"]);	
 
 	var options2 = {root: nodes[3][3], 
-		       goal: nodes[1][5], 
-		       directed: false, 
+			goal: nodes[1][5], 
+			directed: false, 
+			heuristic: function(a){return 0;}
 		      };
 	var res2 = cy.elements().aStar(options2);
 	expect(res2.found).to.equal(true);

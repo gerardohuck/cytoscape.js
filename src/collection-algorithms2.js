@@ -8,19 +8,19 @@
 
 	// options => options object
 	//    root // starting node (either element or selector string)
-	//    weight: function( edge ){} // specifies weight to use for `edge`/`this`
+	//    weight: function( edge ){} // specifies weight to use for `edge`/`this`. If not present, it will be asumed a weight of 1 for all edges
 	//    heuristic: function( node ){} // specifies heuristic value for `node`/`this`
 	//    directed // default false
 	//    goal // target node (either element or selector string). Optional. If present, computation will end if path to goal is found
 
 	// retObj => returned object by function
-	// distanceTo: function( node ){} // returns numeric total to specified destination node, may be undefined if no path or exited early so no path found
-	// pathTo: function( node ){} // returns path collection in node-edge-node order, may be empty collection if no path
+	// found : true/false // whether a path from root to goal has been found
+	// distance // Distance for the shortest path from root to goal
+	// path // Array of ids of nodes in shortest path
 	aStar: function(options) {
 
 	    var logDebug = function() {
 		if (debug) {
-		    //console.log(text);
 		    console.log.apply(console, arguments);
 		}
 	    };
@@ -81,7 +81,8 @@
 	    // root - mandatory!
 	    if (typeof options.root !== undefined) {		
 		var source = $$.is.string(options.root) ? 
-		    this.filter("#" + options.root)[0] : 
+		    // use it as a selector, e.g. "#rootID
+		    this.filter(options.root)[0] : 
 		    options.root[0];
 		logDebug("Source node: %s", source.id()); 
 	    } else {
@@ -91,7 +92,8 @@
 	    // goal - mandatory!
 	    if (typeof options.goal !== undefined) {		
 		var target = $$.is.string(options.goal) ? 
-		    this.filter("#" + options.goal)[0] : 
+		    // use it as a selector, e.g. "#goalID
+		    this.filter(options.goal)[0] : 
 		    options.goal[0];
 		logDebug("Target node: %s", target.id()); 
 	    } else {
@@ -102,9 +104,8 @@
 	    if (typeof options.heuristic !== undefined && $$.is.fn(options.heuristic)) {		
 		var heuristic = options.heuristic;
 	    } else {
-		// If not specified, assume zero constant heuristic
-		// It will be exactly as running Dijkstra
-		var heuristic = function(a) {return 0;};
+		console.error("Missing required parameter (heuristic)! Aborting.");
+		return;
 	    }
 
 	    // Weight function - optional
@@ -161,8 +162,6 @@
 			, distance : gScore[cMin.id()]
 			, path : rPath
 			, steps : steps
-			, distanceTo : undefined
-			, pathTo : undefined
 		    };		    
 		}
 		
@@ -227,8 +226,6 @@
 		, cost : undefined
 		, path : undefined 
 		, steps : steps
-		, distanceTo : undefined
-		, pathTo : undefined
 	    };
 	}
 

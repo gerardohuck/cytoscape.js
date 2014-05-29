@@ -220,47 +220,56 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
   });
 
 
-  it('eles.aStar(): undirected, no heuristic, unweighted', function(){
+  it('eles.aStar(): undirected, null heuristic, unweighted', function(){
       var options = {root: a, 
-		     goal: b};
+		     goal: b,
+		     heuristic: function(a){return 0;}
+		    };
       var res = cy.elements().aStar(options);
-      expect( res.found ).to.equal(true);
-      expect( res.distance ).to.equal(1);
-      expect( res.path ).to.deep.equal(["a", "b"]);
+      expect(res.found).to.equal(true);
+      expect(res.distance).to.equal(1);
+      expect(res.path).to.deep.equal(["a", "b"]);
   });
 
-  it('eles.aStar(): undirected, no heuristic, unweighted (2)', function(){
-      var options = {root: a, 
-		     goal: d};
-      var res = cy.elements().aStar(options);
-      expect( res.found ).to.equal(true);
-      expect( res.distance ).to.equal(2);
-      expect( res.path ).to.deep.equal(["a", "e", "d"]);
-  });
-
-  it('eles.aStar(): directed, no heuristic, unweighted', function(){
-      var options = {root: c, 
-		     goal: a, 
-		     directed: true};
-      var res = cy.elements().aStar(options);
-      expect( res.found ).to.equal(false);
-  });
-
-  it('eles.aStar(): directed, no heuristic, unweighted (2)', function(){
+  it('eles.aStar(): undirected, null heuristic, unweighted (2)', function(){
       var options = {root: a, 
 		     goal: d, 
-		     directed: true};
+		     heuristic: function(a){return 0;}
+		    };
       var res = cy.elements().aStar(options);
-      expect( res.found ).to.equal(true);
-      expect( res.distance ).to.equal(3);
-      expect( res.path ).to.deep.equal(["a", "b", "c", "d"]);
+      expect(res.found).to.equal(true);
+      expect(res.distance).to.equal(2);
+      expect(res.path).to.deep.equal(["a", "e", "d"]);
   });
 
-  it('eles.aStar(): undirected, no heuristic, weighted', function(){
+  it('eles.aStar(): directed, null heuristic, unweighted', function(){
+      var options = {root: c, 
+		     goal: a, 
+		     directed: true,
+		     heuristic: function(a){return 0;}
+		    };
+      var res = cy.elements().aStar(options);
+      expect(res.found).to.equal(false);
+  });
+
+  it('eles.aStar(): directed, null heuristic, unweighted (2)', function(){
+      var options = {root: a, 
+		     goal: d, 
+		     directed: true,
+		     heuristic: function(a){return 0;}
+		    };
+      var res = cy.elements().aStar(options);
+      expect(res.found).to.equal(true);
+      expect(res.distance).to.equal(3);
+      expect(res.path).to.deep.equal(["a", "b", "c", "d"]);
+  });
+
+  it('eles.aStar(): undirected, null heuristic, weighted', function(){
       var options = {root: a, 
 		     goal: d, 
 		     directed: false, 
-		     weight: function() {return this.data('weight');}
+		     weight: function() {return this.data('weight');},
+		     heuristic: function(a){return 0;}
 		    };
       var res = cy.elements().aStar(options);
       expect( res.found ).to.equal(true);
@@ -268,28 +277,30 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
       expect( res.path ).to.deep.equal(["a", "e", "d"]);
   });
 
-  it('eles.aStar(): directed, no heuristic, weighted', function(){
+  it('eles.aStar(): directed, null heuristic, weighted', function(){
       var options = {root: a, 
 		     goal: d, 
 		     directed: true, 
-		     weight: function() {return this.data('weight');}
+		     weight: function() {return this.data('weight');},
+		     heuristic: function(a){return 0;}
 		    };
       var res = cy.elements().aStar(options);
-      expect( res.found ).to.equal(true);
-      expect( res.distance ).to.equal(10);
-      expect( res.path ).to.deep.equal(["a", "b", "c", "d"]);
+      expect(res.found).to.equal(true);
+      expect(res.distance).to.equal(10);
+      expect(res.path).to.deep.equal(["a", "b", "c", "d"]);
   });
 
-  it('eles.aStar(): directed, no heuristic, weighted, not found', function(){
+  it('eles.aStar(): directed, null heuristic, weighted, not found', function(){
       var options = {root: d, 
 		     goal: a, 
 		     directed: true, 
-		     weight: function() {return this.data('weight');}
+		     weight: function() {return this.data('weight');},
+		     heuristic: function(a){return 0;}
 		    };
       var res = cy.elements().aStar(options);
-      expect( res.found ).to.equal(false);
-      expect( res.distance ).to.equal(undefined);
-      expect( res.path ).to.deep.equal(undefined);
+      expect(res.found).to.equal(false);
+      expect(res.distance).to.equal(undefined);
+      expect(res.path).to.deep.equal(undefined);
   });
 
 });
