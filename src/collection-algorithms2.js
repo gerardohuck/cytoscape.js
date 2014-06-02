@@ -47,7 +47,6 @@
 		return undefined;		
 	    };
 
-
 	    // Returns the index of the element in openSet which has minimum fScore
 	    var findMin = function(openSet, fScore) {
 		if (openSet.length == 0) {
@@ -66,7 +65,6 @@
 		return minPos;
 	    };
 
-
 	    // Parse options
 	    // debug - optional
 	    if (typeof options.debug !== undefined) {
@@ -75,7 +73,7 @@
 		var debug = false;
 	    }
 	    
-	    logDebug("Starting aStar."); 
+	    logDebug("Starting aStar..."); 
 	    var cy = this._private.cy;
 
 	    // root - mandatory!
@@ -116,16 +114,12 @@
 		var weightFn = function(e) {return 1;};
 	    }
 
-
 	    // directed - optional
 	    if (typeof options.directed !== undefined) {		
 		var directed = options.directed;
 	    } else {
 		var directed = false;
 	    }
-
-
-
 
 	    var closedSet = [];
 	    var openSet = [source.id()];
@@ -227,8 +221,57 @@
 		, path : undefined 
 		, steps : steps
 	    };
-	}
+	}, // aStar()
 
-    });
+
+	// Implemented from pseudocode from wikipedia
+
+	// options => options object
+	//    weight: function( edge ){} // specifies weight to use for `edge`/`this`. If not present, it will be asumed a weight of 1 for all edges
+	//    directed // default false
+	
+	// retObj => returned object by function
+	// ??
+	floydWarshall: function(options) {
+
+	    var logDebug = function() {
+		if (debug) {
+		    console.log.apply(console, arguments);
+		}
+	    };
+
+	    // Parse options
+	    // debug - optional
+	    if (typeof options.debug !== undefined) {
+		var debug = options.debug;
+	    } else {
+		var debug = false;
+	    }
+
+	    logDebug("Starting floydWarshall..."); 
+	    var cy = this._private.cy;
+
+	    // Weight function - optional
+	    if (typeof options.weight !== undefined && $$.is.fn(options.weight)) {		
+		var weightFn = options.weight;
+	    } else {
+		// If not specified, assume each edge has equal weight (1)
+		var weightFn = function(e) {return 1;};
+	    }
+
+	    // directed - optional
+	    if (typeof options.directed !== undefined) {		
+		var directed = options.directed;
+	    } else {
+		var directed = false;
+	    }
+
+	    var edges = this.edges().not(':loop');
+	    var nodes = this.nodes();
+
+
+	}, // floydWarshall
+    }); // $$.fn.eles({
+
     
 }) (cytoscape);
