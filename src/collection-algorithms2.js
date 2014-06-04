@@ -268,7 +268,79 @@
 
 	    var edges = this.edges().not(':loop');
 	    var nodes = this.nodes();
+	    var numNodes = nodes.length;
 
+	    // mapping: node id -> position in nodes array
+	    var id2position = {};
+	    for (var i = 0; i < numNodes; i++) {
+		id2position[nodes[i].id()] = i;
+	    }	    
+
+	    // Initialize distance matrix
+	    var dist = [];
+	    for (var i = 0; i < numNodes; i++) {
+		var newRow = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++) {
+		    newRow[j] = Infinity;
+		}
+		dist.push(newRow);
+	    }	   	    
+
+	    // Initialize matrix used for path reconstruction
+	    // Initialize distance matrix
+	    var next = [];
+	    for (var i = 0; i < numNodes; i++) {
+		var newRow = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++) {
+		    newRow[j] = undefined;
+		}
+		next.push(newRow);
+	    }
+	    
+	    // Process edges
+	    for (var i = 0; i < edges.length ; i++) {	    
+		var sourceIndex = id2position[edges[i].source().id()];
+		var targetIndex = id2position[edges[i].target().id()];	
+		dist[sourceIndex][targetIndex] = weightFn.apply(edges[i], [edges[i]]);
+		next[sourceIndex][targetIndex] = targetIndex;
+	    }
+
+	    // Main loop
+	    for (var k = 0; k < numNodes; k++) {
+		for (var i = 0; i < numNodes; i++) {
+		    for (var j = 0; j < numNodes; j++) {			
+			if (dist[i][k] + dist[k][j] < dist[i][j]) {
+			    dist[i][j] = dist[i][k] + dist[k][j];
+			    next[i][j] = next[i][k];
+			}
+		    }
+		}
+	    }
+
+	    // Build result object	   
+	    var reconstructPathAux = function(from, to, next, position2id) {
+		if (next[from][to] === undefined) {
+		    return [];
+		}
+		var path = [position2id[from]];
+		while (from !== to) {
+		    from = next[from][to];
+		    path.push(position2id[from]);
+		}
+		return path;
+	    };
+	    var position2id = [];
+	    for (var i = 0; i < numNodes; i++) {
+		position2id.push(nodes[i].id());
+	    }
+
+	    var res = {
+		pathTo : function(fromId, toId) {
+		    return reconstructPathAux(id2position(fromId), id2position(toId), next, position2id);
+		},
+	    };
+
+	    return res;
 
 	}, // floydWarshall
     }); // $$.fn.eles({
