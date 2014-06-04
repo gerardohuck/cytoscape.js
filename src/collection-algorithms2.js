@@ -318,25 +318,31 @@
 	    }
 
 	    // Build result object	   
-	    var reconstructPathAux = function(from, to, next, position2id) {
-		if (next[from][to] === undefined) {
-		    return [];
-		}
-		var path = [position2id[from]];
-		while (from !== to) {
-		    from = next[from][to];
-		    path.push(position2id[from]);
-		}
-		return path;
-	    };
 	    var position2id = [];
 	    for (var i = 0; i < numNodes; i++) {
 		position2id.push(nodes[i].id());
 	    }
 
 	    var res = {
+		distanceTo: function(fromId, toId) {
+		    return dist[id2position[fromId]][id2position[toId]];
+		},
 		pathTo : function(fromId, toId) {
-		    return reconstructPathAux(id2position(fromId), id2position(toId), next, position2id);
+		    var reconstructPathAux = function(from, to, next, position2id) {
+			if (next[from][to] === undefined) {
+			    return undefined;
+			}
+			var path = [position2id[from]];
+			while (from !== to) {
+			    from = next[from][to];
+			    path.push(position2id[from]);
+			}
+			return path;
+		    };
+		    return reconstructPathAux(id2position[fromId], 
+					      id2position[toId], 
+					      next,
+					      position2id);
 		},
 	    };
 
