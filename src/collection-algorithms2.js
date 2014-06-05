@@ -225,13 +225,12 @@
 
 
 	// Implemented from pseudocode from wikipedia
-
 	// options => options object
 	//    weight: function( edge ){} // specifies weight to use for `edge`/`this`. If not present, it will be asumed a weight of 1 for all edges
 	//    directed // default false
-	
 	// retObj => returned object by function
-	// ??
+	// pathTo : function(fromId, toId) // Returns the shortest path from node with ID "fromID" to node with ID "toId", as an array of node IDs
+	// distanceTo: function(fromId, toId) // Returns the distance of the shortest path from node with ID "fromID" to node with ID "toId"
 	floydWarshall: function(options) {
 
 	    var logDebug = function() {
@@ -249,6 +248,7 @@
 	    }
 
 	    logDebug("Starting floydWarshall..."); 
+
 	    var cy = this._private.cy;
 
 	    // Weight function - optional
