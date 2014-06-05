@@ -281,7 +281,11 @@
 	    for (var i = 0; i < numNodes; i++) {
 		var newRow = new Array(numNodes);
 		for (var j = 0; j < numNodes; j++) {
-		    newRow[j] = Infinity;
+		    if (i == j) {
+			newRow[j] = 0;
+		    } else {
+			newRow[j] = Infinity;
+		    }
 		}
 		dist.push(newRow);
 	    }	   	    
@@ -344,11 +348,31 @@
 	    }
 
 	    var res = {
-		distanceTo: function(fromId, toId) {
+		distanceTo: function(from, to) {
+		    if ($$.is.string(from)) {
+			// from is a selector string
+			var fromId = (cy.filter(from)[0]).id();
+		    } else {
+			// from is a node
+			var fromId = from.id();
+		    }
+
+		    if ($$.is.string(to)) {
+			// to is a selector string
+			var toId = (cy.filter(to)[0]).id();
+		    } else {
+			// to is a node
+			var toId = to.id();
+		    }
+
 		    return dist[id2position[fromId]][id2position[toId]];
 		},
-		pathTo : function(fromId, toId) {
+
+		pathTo : function(from, to) {
 		    var reconstructPathAux = function(from, to, next, position2id) {
+			if (from === to) {
+			    return [position2id[from]];
+			}
 			if (next[from][to] === undefined) {
 			    return undefined;
 			}
@@ -359,6 +383,22 @@
 			}
 			return path;
 		    };
+
+		    if ($$.is.string(from)) {
+			// from is a selector string
+			var fromId = (cy.filter(from)[0]).id();
+		    } else {
+			// from is a node
+			var fromId = from.id();
+		    }
+
+		    if ($$.is.string(to)) {
+			// to is a selector string
+			var toId = (cy.filter(to)[0]).id();
+		    } else {
+			// to is a node
+			var toId = to.id();
+		    }
 		    return reconstructPathAux(id2position[fromId], 
 					      id2position[toId], 
 					      next,
