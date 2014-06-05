@@ -301,8 +301,28 @@
 	    for (var i = 0; i < edges.length ; i++) {	    
 		var sourceIndex = id2position[edges[i].source().id()];
 		var targetIndex = id2position[edges[i].target().id()];	
-		dist[sourceIndex][targetIndex] = weightFn.apply(edges[i], [edges[i]]);
-		next[sourceIndex][targetIndex] = targetIndex;
+		var weight = weightFn.apply(edges[i], [edges[i]]);
+		
+		// Check if already process another edge between same 2 nodes
+		if (dist[sourceIndex][targetIndex] > weight) {
+		    dist[sourceIndex][targetIndex] = weight
+		    next[sourceIndex][targetIndex] = targetIndex;
+		}
+	    }
+
+	    // If undirected graph, process 'reversed' edges
+	    if (!directed) {
+		for (var i = 0; i < edges.length ; i++) {	    
+		    var sourceIndex = id2position[edges[i].target().id()];	
+		    var targetIndex = id2position[edges[i].source().id()];
+		    var weight = weightFn.apply(edges[i], [edges[i]]);
+		    
+		    // Check if already process another edge between same 2 nodes
+		    if (dist[sourceIndex][targetIndex] > weight) {
+			dist[sourceIndex][targetIndex] = weight
+			next[sourceIndex][targetIndex] = targetIndex;
+		    }
+		}
 	    }
 
 	    // Main loop
