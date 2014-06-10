@@ -409,7 +409,72 @@
 	    return res;
 
 	}, // floydWarshall
+
+
+	// Implemented from pseudocode from wikipedia
+	// options => options object
+	//    root: starting node (either element or selector string)
+	//    weight: function( edge ){} // specifies weight to use for `edge`/`this`. If not present, it will be asumed a weight of 1 for all edges
+	//    directed // default false
+	// retObj => returned object by function
+	// pathTo : function(toId) // Returns the shortest path from root node to node with ID "toId", as an array of node IDs
+	// distanceTo: function(toId) // Returns the distance of the shortest path from root node to node with ID "toId"
+	floydWarshall: function(options) {
+
+	    var logDebug = function() {
+		if (debug) {
+		    console.log.apply(console, arguments);
+		}
+	    };
+
+	    // Parse options
+	    // debug - optional
+	    if (typeof options.debug !== undefined) {
+		var debug = options.debug;
+	    } else {
+		var debug = false;
+	    }
+
+	    logDebug("Starting floydWarshall..."); 
+
+	    // Weight function - optional
+	    if (typeof options.weight !== undefined && $$.is.fn(options.weight)) {		
+		var weightFn = options.weight;
+	    } else {
+		// If not specified, assume each edge has equal weight (1)
+		var weightFn = function(e) {return 1;};
+	    }
+
+	    // directed - optional
+	    if (typeof options.directed !== undefined) {		
+		var directed = options.directed;
+	    } else {
+		var directed = false;
+	    }
+
+	    // root - mandatory!
+	    if (typeof options.root !== undefined) {		
+		var source = $$.is.string(options.root) ? 
+		    // use it as a selector, e.g. "#rootID
+		    this.filter(options.root)[0] : 
+		    options.root[0];
+		logDebug("Source node: %s", source.id()); 
+	    } else {
+		console.error("options.root required");
+		return undefined;
+	    }
+
+	    var cy = this._private.cy;
+	    var edges = this.edges().not(':loop');
+	    var nodes = this.nodes();
+	    var numNodes = nodes.length;
+
+
+
+	}, // bellmanFord
+
+
+
     }); // $$.fn.eles({
 
-    
 }) (cytoscape);
