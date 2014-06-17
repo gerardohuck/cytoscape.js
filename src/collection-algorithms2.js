@@ -419,7 +419,7 @@
 	// retObj => returned object by function
 	// pathTo : function(toId) // Returns the shortest path from root node to node with ID "toId", as an array of node IDs
 	// distanceTo: function(toId) // Returns the distance of the shortest path from root node to node with ID "toId"
-	floydWarshall: function(options) {
+	bellmanFord: function(options) {
 
 	    var logDebug = function() {
 		if (debug) {
@@ -454,10 +454,12 @@
 
 	    // root - mandatory!
 	    if (typeof options.root !== undefined) {		
-		var source = $$.is.string(options.root) ? 
+		if ($$.is.string(options.root)) {
 		    // use it as a selector, e.g. "#rootID
-		    this.filter(options.root)[0] : 
-		    options.root[0];
+		    var source = this.filter(options.root)[0];
+		} else {
+		    var source = options.root[0];
+		}
 		logDebug("Source node: %s", source.id()); 
 	    } else {
 		console.error("options.root required");
@@ -469,12 +471,63 @@
 	    var nodes = this.nodes();
 	    var numNodes = nodes.length;
 
+	    // mapping: node id -> position in nodes array
+	    var id2position = {};
+	    for (var i = 0; i < numNodes; i++) {
+		id2position[nodes[i].id()] = i;
+	    }	    
 
+	    // Initializations
+	    var cost = [];
+	    var predecessor = [];
+	    
+	    for (var i = 0; i < numNodes; i++) {
+		if (nodes[i].id() === source.id()) {
+		    cost[i] = 0;
+		} else {
+		    cost[i] = Infinity;
+		}    
+		predecessor[i] = undefined;
+	    }
+	    
+	    // Edges relaxation	   
+	    for (var i = 1; i < numNodes; i++) {
+		for (var e = 0; e < edges.length; e++) {
+		    var sourceIndex = id2position[edges[e].source().id()];
+		    var targetIndex = id2position[edges[e].target().id()];	
+		    var weight = weightFn.apply(edges[e], [edges[e]]);
+		    
+		    var temp = cost[sourceIndex] + weight;
+		    if (temp < cost[targetIndex]) {
+			cost[targetIndex] = temp;
+			predecessor[targetIndex] = sourceIndex;
+		    }
+		}
+	    }	   
+
+	    // Check for negative weight cycles
+	    for (var e = 0; e < edges.length; e++) {
+		var sourceIndex = id2position[edges[e].source().id()];
+		var targetIndex = id2position[edges[e].target().id()];	
+		var weight = weightFn.apply(edges[e], [edges[e]]);
+		
+		if (cost[sourceIndex] + weight < cost[targetIndex]) {
+		    console.error("Error: graph contains a negative weigth cycle!"); 
+		    return;
+		}
+	    }	    
+
+	    var res = {
+		predecessor: predecessor, 
+		cost: cost
+	    };
+
+	    return res;
 
 	}, // bellmanFord
 
 
 
-    }); // $$.fn.eles({
+    }); // $$.fn.eles
 
 }) (cytoscape);
