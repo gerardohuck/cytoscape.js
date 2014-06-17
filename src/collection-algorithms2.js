@@ -67,7 +67,7 @@
 
 	    // Parse options
 	    // debug - optional
-	    if (typeof options.debug !== undefined) {
+	    if (typeof options.debug !== "undefined") {
 		var debug = options.debug;
 	    } else {
 		var debug = false;
@@ -77,7 +77,7 @@
 	    var cy = this._private.cy;
 
 	    // root - mandatory!
-	    if (typeof options.root !== undefined) {		
+	    if (typeof options.root !== "undefined") {		
 		var source = $$.is.string(options.root) ? 
 		    // use it as a selector, e.g. "#rootID
 		    this.filter(options.root)[0] : 
@@ -88,7 +88,7 @@
 	    }
 	    
 	    // goal - mandatory!
-	    if (typeof options.goal !== undefined) {		
+	    if (typeof options.goal !== "undefined") {		
 		var target = $$.is.string(options.goal) ? 
 		    // use it as a selector, e.g. "#goalID
 		    this.filter(options.goal)[0] : 
@@ -99,7 +99,7 @@
 	    }
 
 	    // Heuristic function - optional
-	    if (typeof options.heuristic !== undefined && $$.is.fn(options.heuristic)) {		
+	    if (typeof options.heuristic !== "undefined" && $$.is.fn(options.heuristic)) {		
 		var heuristic = options.heuristic;
 	    } else {
 		console.error("Missing required parameter (heuristic)! Aborting.");
@@ -107,7 +107,7 @@
 	    }
 
 	    // Weight function - optional
-	    if (typeof options.weight !== undefined && $$.is.fn(options.weight)) {		
+	    if (typeof options.weight !== "undefined" && $$.is.fn(options.weight)) {		
 		var weightFn = options.weight;
 	    } else {
 		// If not specified, assume each edge has equal weight (1)
@@ -115,7 +115,7 @@
 	    }
 
 	    // directed - optional
-	    if (typeof options.directed !== undefined) {		
+	    if (typeof options.directed !== "undefined") {		
 		var directed = options.directed;
 	    } else {
 		var directed = false;
@@ -241,7 +241,7 @@
 
 	    // Parse options
 	    // debug - optional
-	    if (typeof options.debug !== undefined) {
+	    if (typeof options.debug !== "undefined") {
 		var debug = options.debug;
 	    } else {
 		var debug = false;
@@ -252,7 +252,7 @@
 	    var cy = this._private.cy;
 
 	    // Weight function - optional
-	    if (typeof options.weight !== undefined && $$.is.fn(options.weight)) {		
+	    if (typeof options.weight !== "undefined" && $$.is.fn(options.weight)) {		
 		var weightFn = options.weight;
 	    } else {
 		// If not specified, assume each edge has equal weight (1)
@@ -260,7 +260,7 @@
 	    }
 
 	    // directed - optional
-	    if (typeof options.directed !== undefined) {		
+	    if (typeof options.directed !== "undefined") {		
 		var directed = options.directed;
 	    } else {
 		var directed = false;
@@ -429,16 +429,16 @@
 
 	    // Parse options
 	    // debug - optional
-	    if (typeof options.debug !== undefined) {
+	    if (typeof options.debug !== "undefined") {
 		var debug = options.debug;
 	    } else {
 		var debug = false;
 	    }
 
-	    logDebug("Starting floydWarshall..."); 
+	    logDebug("Starting bellmanFord..."); 
 
 	    // Weight function - optional
-	    if (typeof options.weight !== undefined && $$.is.fn(options.weight)) {		
+	    if (typeof options.weight !== "undefined" && $$.is.fn(options.weight)) {		
 		var weightFn = options.weight;
 	    } else {
 		// If not specified, assume each edge has equal weight (1)
@@ -446,14 +446,14 @@
 	    }
 
 	    // directed - optional
-	    if (typeof options.directed !== undefined) {		
+	    if (typeof options.directed !== "undefined") {		
 		var directed = options.directed;
 	    } else {
 		var directed = false;
 	    }
 
 	    // root - mandatory!
-	    if (typeof options.root !== undefined) {		
+	    if (typeof options.root !== "undefined") {		
 		if ($$.is.string(options.root)) {
 		    // use it as a selector, e.g. "#rootID
 		    var source = this.filter(options.root)[0];
@@ -491,7 +491,9 @@
 	    }
 	    
 	    // Edges relaxation	   
+	    var flag = false;
 	    for (var i = 1; i < numNodes; i++) {
+		flag = false;
 		for (var e = 0; e < edges.length; e++) {
 		    var sourceIndex = id2position[edges[e].source().id()];
 		    var targetIndex = id2position[edges[e].target().id()];	
@@ -501,25 +503,95 @@
 		    if (temp < cost[targetIndex]) {
 			cost[targetIndex] = temp;
 			predecessor[targetIndex] = sourceIndex;
+			flag = true;
 		    }
+
+		    // todo: add case for undirected graphs
+		}
+
+		if (!flag) {
+		    break;
 		}
 	    }	   
+	    	    
+	    if (flag) {
+		// Check for negative weight cycles
+		for (var e = 0; e < edges.length; e++) {
+		    var sourceIndex = id2position[edges[e].source().id()];
+		    var targetIndex = id2position[edges[e].target().id()];	
+		    var weight = weightFn.apply(edges[e], [edges[e]]);
+		    
+		    if (cost[sourceIndex] + weight < cost[targetIndex]) {
+			console.error("Error: graph contains a negative weigth cycle!"); 
+			return undefinded;
+		    }
+		}	    
+	    }
 
-	    // Check for negative weight cycles
-	    for (var e = 0; e < edges.length; e++) {
-		var sourceIndex = id2position[edges[e].source().id()];
-		var targetIndex = id2position[edges[e].target().id()];	
-		var weight = weightFn.apply(edges[e], [edges[e]]);
-		
-		if (cost[sourceIndex] + weight < cost[targetIndex]) {
-		    console.error("Error: graph contains a negative weigth cycle!"); 
-		    return;
-		}
-	    }	    
+	    // Build result object	   
+	    var position2id = [];
+	    for (var i = 0; i < numNodes; i++) {
+		position2id.push(nodes[i].id());
+	    }
+	    
 
-	    var res = {
-		predecessor: predecessor, 
-		cost: cost
+	    var res = {		
+		distanceTo : function(to) {
+		    if ($$.is.string(to)) {
+			// to is a selector string
+			var toId = (cy.filter(to)[0]).id();
+		    } else {
+			// to is a node
+			var toId = to.id();
+		    }
+
+		    return cost[id2position[toId]];
+		}, 
+
+		pathTo : function(to) {
+
+		    var reconstructPathAux = function(predecessor, fromPos, toPos, position2id, acumPath) {
+			// Add toId to path
+			acumPath.push(position2id[toPos]);		
+			if (fromPos === toPos) {
+			    // reached starting node
+			    return acumPath;
+			}
+			// If no path exists, discart acumulated path and return undefined
+			var predPos = predecessor[toPos];
+			if (typeof predPos === "undefined") {
+			    return undefined;
+			}
+			// recursively compute path until predecessor of toId
+			return reconstructPathAux(predecessor, 
+						  fromPos, 
+						  predPos, 
+						  position2id, 
+						  acumPath);
+		    };
+
+		    if ($$.is.string(to)) {
+			// to is a selector string
+			var toId = (cy.filter(to)[0]).id();
+		    } else {
+			// to is a node
+			var toId = to.id();
+		    }
+		    var path = [];
+
+		    // This returns a reversed path 
+		    var res =  reconstructPathAux(predecessor, 
+					      id2position[source.id()],
+					      id2position[toId], 
+					      position2id, 
+					      path);
+
+		    // Get it in the correct order and return it
+		    if (typeof res !== "undefined") {
+			res.reverse();
+		    }
+		    return res;					      
+		}, 
 	    };
 
 	    return res;
