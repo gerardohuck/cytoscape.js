@@ -506,7 +506,15 @@
 			flag = true;
 		    }
 
-		    // todo: add case for undirected graphs
+		    // If undirected graph, we need to take into account the 'reverse' edge
+		    if (!directed) {
+			var temp = cost[targetIndex] + weight;
+			if (temp < cost[sourceIndex]) {
+			    cost[sourceIndex] = temp;
+			    predecessor[sourceIndex] = targetIndex;
+			    flag = true;
+			}
+		    }
 		}
 
 		if (!flag) {
