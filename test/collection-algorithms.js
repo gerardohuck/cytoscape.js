@@ -533,4 +533,107 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
   });
 
 
+
+  it('eles.bellmanFord(): undirected, weighted', function() {
+      var options = { root: a,
+		      directed: false, 
+		      weight: function() {return this.data('weight');}
+		    };
+      var res = cy.elements().bellmanFord(options);
+      var path = res.pathTo;
+      var distance = res.distanceTo;
+
+      // No negative weight cycles
+      expect(res.hasNegativeWeightCycle).to.equal(false);
+
+      // Paths from node a
+      expect(distance(a)).to.equal(0);
+      expect(path(a)).to.deep.equal(["a"]);
+
+      expect(distance(b)).to.equal(3);
+      expect(path(b)).to.deep.equal(["a", "b"]);
+
+      expect(distance(c)).to.equal(7);
+      expect(path(c)).to.deep.equal(["a", "e", "c"]);
+
+      expect(distance(d)).to.equal(8);
+      expect(path(d)).to.deep.equal(["a", "e", "d"]);
+
+       expect(distance(e)).to.equal(1);
+       expect(path(e)).to.deep.equal(["a", "e"]);
+  });
+
+
+  it('eles.bellmanFord(): detection of negative weight cycle', function() {
+      var options = { root: a,
+		      directed: false, 
+		      weight: function() {return -1 * this.data('weight');}
+		    };
+      var res = cy.elements().bellmanFord(options);
+
+      // No negative weight cycles
+      expect(res.hasNegativeWeightCycle).to.equal(true);
+
+  });
+
+
+  it('eles.bellmanFord(): directed, weighted', function() {
+      var options = { root: b,
+		      directed: true, 
+		      weight: function() {return this.data('weight');}
+		    };
+      var res = cy.elements().bellmanFord(options);
+      var path = res.pathTo;
+      var distance = res.distanceTo;
+
+      // No negative weight cycles
+      expect(res.hasNegativeWeightCycle).to.equal(false);
+
+      // Paths from node b
+      expect(distance(a)).to.equal(Infinity);
+      expect(path(a)).to.deep.equal(undefined);
+
+      expect(distance(b)).to.equal(0);
+      expect(path(b)).to.deep.equal(["b"]);
+
+      expect(distance(c)).to.equal(5);
+      expect(path(c)).to.deep.equal(["b", "c"]);
+
+      expect(distance(d)).to.equal(7);
+      expect(path(d)).to.deep.equal(["b", "c", "d"]);
+
+      expect(distance(e)).to.equal(4);
+      expect(path(e)).to.deep.equal(["b", "e"]);
+  });
+
+
+  it('eles.bellmanFord(): undirected, unweighted', function() {
+      var options = { root: a,
+		      directed: false
+		    };
+      var res = cy.elements().bellmanFord(options);
+      var path = res.pathTo;
+      var distance = res.distanceTo;
+
+      // No negative weight cycles
+      expect(res.hasNegativeWeightCycle).to.equal(false);
+
+      // Paths from node a
+      expect(distance(a)).to.equal(0);
+      expect(path(a)).to.deep.equal(["a"]);
+
+      expect(distance(b)).to.equal(1);
+      expect(path(b)).to.deep.equal(["a", "b"]);
+
+      expect(distance(c)).to.equal(2);
+      //expect(path(c)).to.deep.equal(["a", "b", "c"]);
+
+      expect(distance(d)).to.equal(2);
+      expect(path(d)).to.deep.equal(["a", "e", "d"]);
+
+      expect(distance(e)).to.equal(1);
+      expect(path(e)).to.deep.equal(["a", "e"]);
+
+  });
+
 });

@@ -419,6 +419,7 @@
 	// retObj => returned object by function
 	// pathTo : function(toId) // Returns the shortest path from root node to node with ID "toId", as an array of node IDs
 	// distanceTo: function(toId) // Returns the distance of the shortest path from root node to node with ID "toId"
+	// hasNegativeWeightCycle: true/false (if false, pathTo and distanceTo will be undefined)
 	bellmanFord: function(options) {
 
 	    var logDebug = function() {
@@ -531,7 +532,9 @@
 		    
 		    if (cost[sourceIndex] + weight < cost[targetIndex]) {
 			console.error("Error: graph contains a negative weigth cycle!"); 
-			return undefinded;
+			return { pathTo: undefined,
+				 distanceTo: undefined,
+				 hasNegativeWeightCycle: true};
 		    }
 		}	    
 	    }
@@ -600,6 +603,8 @@
 		    }
 		    return res;					      
 		}, 
+
+		hasNegativeWeightCycle: false
 	    };
 
 	    return res;
