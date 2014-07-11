@@ -545,7 +545,7 @@
 		position2id.push(nodes[i].id());
 	    }
 	    
-
+	    
 	    var res = {		
 		distanceTo : function(to) {
 		    if ($$.is.string(to)) {
@@ -612,6 +612,58 @@
 	}, // bellmanFord
 
 
+	// 
+	kargerStein: function(options) {
+
+	    var logDebug = function() {
+		if (debug) {
+		    console.log.apply(console, arguments);
+		}
+	    };
+
+	    // Parse options
+	    // debug - optional
+	    if (typeof options.debug !== "undefined") {
+		var debug = options.debug;
+	    } else {
+		var debug = false;
+	    }
+
+	    logDebug("Starting kargerStein..."); 
+
+	    var cy = this._private.cy;
+	    var edges = this.edges().not(':loop');
+	    var nodes = this.nodes();
+	    var numNodes = nodes.length;
+	    var numEdges = edges.length;
+
+	    // Create numerical identifiers for each node
+	    // mapping: node id -> position in nodes array
+	    // for reverse mapping, simply use nodes array
+	    var id2position = {};
+	    for (var i = 0; i < numNodes; i++) {
+		id2position[nodes[i].id()] = i;
+	    }
+
+	    // Now store edge destination as numerical ids
+	    edgeTargets = [];
+	    for (var i = 0; i < numEdges; i++) {
+		var e = edges[i];
+		edgeTargets.push((id2position[e.source().id()], id2position[e.target().id()]));
+	    }
+
+	    // We will store the best cut found here
+	    minCutSize = Infinity;
+	    minCut = undefined;
+
+	    
+
+
+
+	    var res = {};
+	    
+	    return res;
+	},
 
     }); // $$.fn.eles
 
