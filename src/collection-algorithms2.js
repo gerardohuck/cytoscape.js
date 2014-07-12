@@ -614,11 +614,25 @@
 
 	// 
 	kargerStein: function(options) {
-
+	    
 	    var logDebug = function() {
 		if (debug) {
 		    console.log.apply(console, arguments);
 		}
+	    };
+
+	    // Function which colapses 2 (meta) nodes into one
+	    // Updates the remaining edge lists
+	    // Receives as a paramater the edge which causes the collapse
+	    var colapse = function(edgeId, nodeMap, edgeList, edgeMap) {
+		// TODO
+		var a;
+	    };
+
+	    //
+	    var contractUntil = function(metaNodeMap, remainingEdges, sizeLimit) {
+		// TODO
+		var a;
 	    };
 
 	    // Parse options
@@ -636,6 +650,7 @@
 	    var nodes = this.nodes();
 	    var numNodes = nodes.length;
 	    var numEdges = edges.length;
+	    var numIter = Math.ceil(Math.pow(Math.log2(numNodes), 2));
 
 	    // Create numerical identifiers for each node
 	    // mapping: node id -> position in nodes array
@@ -645,22 +660,63 @@
 		id2position[nodes[i].id()] = i;
 	    }
 
-	    // Now store edge destination as numerical ids
-	    edgeTargets = [];
+	    // Now store edge destination as indexes
+	    // Format for each edge (edge index, source node index, target node index)
+	    var edgeIndexes = [];
 	    for (var i = 0; i < numEdges; i++) {
 		var e = edges[i];
-		edgeTargets.push((id2position[e.source().id()], id2position[e.target().id()]));
+		edgeIndexes.push([i, id2position[e.source().id()], id2position[e.target().id()]]);
 	    }
 
 	    // We will store the best cut found here
-	    minCutSize = Infinity;
-	    minCut = undefined;
+	    var minCutSize = Infinity;
+	    var minCut = undefined;
+
+	    // Initial meta node partition
+	    var originalMetaNode = [];
+	    for (var i = 0; i < numNodes; i++) {
+		originalMetaNode.push(i);
+	    }
+
+	    // Main loop
+	    for (var iter = 0; iter <= numIter; iter++) {
+		// Create a fresh copy of edges to pick from
+		var remainingEdges = edgeIndexes.slice(0);
+		// Create new meta node partition
+		metaNodeMap = originalMetaNode.slice(0);
+
+		// Contract until only 2 nodes
+		contractUntil(metaNodeMap, remainingEdges, 2);
+		
+		// Is this the best cut so far?
+		if (remainingEdges.length < minCutSize) {
+		    minCutSize = remainingEdges.length;
+		    minCut = [remainingEdges, metaNodeMap];
+		}
+		
+	    } // end of main loop
 
 	    
+	    // Construct result
+	    var resEdges = (minCut[0]).map(function(e) {return edges[e[0]].id();});
+	    var partition1 = [];
+	    var partition2 = [];
+	    var witnessNodePartition = minCut[1][0];
 
-
-
-	    var res = {};
+	    for (var i = 0; i < minCut[1].length; i++) {
+		var partitionId = minCut[1][i];
+		if (partitionId === witnessNodePartition) {
+		    partition1.push(nodes[i].id());
+		} else {
+		    partition2.push(nodes[i].id());
+		}		
+	    }
+	    
+	    var res = {
+		cut: resEdges,
+		partition1: partition1,
+		partition2: partition2
+	    };
 	    
 	    return res;
 	},
