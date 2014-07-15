@@ -624,15 +624,55 @@
 	    // Function which colapses 2 (meta) nodes into one
 	    // Updates the remaining edge lists
 	    // Receives as a paramater the edge which causes the collapse
-	    var colapse = function(edgeId, nodeMap, edgeList, edgeMap) {
-		// TODO
-		var a;
+	    var colapse = function(edgeIndex, nodeMap, remainingEdges) {
+		var edgeInfo = remainingEdges[edgeIndex];
+		var sourceIn = edgeInfo[1];
+		var targetIn = edgeInfo[2];
+		var partition1 = nodeMap[sourceIn];
+		var partition2 = nodeMap[targetIn];
+
+		// Delete all edges between partition1 and partition2
+		var newEdges = remainingEdges.filter(function(edge) {
+		    if (nodeMap[edge[1]] === partition1 && nodeMap[edge[2]] === partition2) {
+			return false;
+		    }
+		    if (nodeMap[edge[1]] === partition2 && nodeMap[edge[2]] === partition1) {
+			return false;
+		    }
+		    return true;
+		});
+		
+		// Move all nodes from partition2 to partition1
+		for (var i = 0; i <= nodeMap.length; i++) {
+		    if (nodeMap[i] === partition2) {
+			nodeMap[i] = partition2;
+		    }
+		}
+
+		return newEdges;
 	    };
 
+
 	    //
-	    var contractUntil = function(metaNodeMap, remainingEdges, sizeLimit) {
-		// TODO
-		var a;
+	    var contractUntil = function(metaNodeMap, 
+					 remainingEdges,
+					 size, 
+					 sizeLimit) {
+		// Stop condition
+		if (size <= sizeLimit) {
+		    return remainingEdges;
+		}
+		
+		// Choose an edge randomly
+		var edgeIndex = Math.floor((Math.random() * remainingEdges.length));
+
+		// Colapse graph based on edge
+		var newEdges = colapse(edgeIndex, nodeMap, remainingEdges);
+		
+		return contractUntil(metaNodeMap, 
+				     newEdges, 
+				     size - 1, 
+				     sizeLimit);		
 	    };
 
 	    // Parse options
@@ -680,18 +720,16 @@
 
 	    // Main loop
 	    for (var iter = 0; iter <= numIter; iter++) {
-		// Create a fresh copy of edges to pick from
-		var remainingEdges = edgeIndexes.slice(0);
 		// Create new meta node partition
 		metaNodeMap = originalMetaNode.slice(0);
 
 		// Contract until only 2 nodes
-		contractUntil(metaNodeMap, remainingEdges, 2);
+		var res = contractUntil(metaNodeMap, remainingEdges, numNodes, 2);
 		
 		// Is this the best cut so far?
-		if (remainingEdges.length < minCutSize) {
-		    minCutSize = remainingEdges.length;
-		    minCut = [remainingEdges, metaNodeMap];
+		if (res.length < minCutSize) {
+		    minCutSize = res.length;
+		    minCut = [res, metaNodeMap];
 		}
 		
 	    } // end of main loop
