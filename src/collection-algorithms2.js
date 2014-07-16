@@ -642,13 +642,26 @@
 		    return true;
 		});
 		
+		// All edges pointing to partition2 should now point to partition1
+		for (var i = 0; i < newEdges.length; i++) {
+		    var edge = newEdges[i];
+		    if (edge[1] === partition2) { // Check source
+			newEdges[i] = edge.slice(0);
+			newEdges[i][1] = partition1;
+		    } else if (edge[2] === partition2) { // Check target
+			newEdges[i] = edge.slice(0);
+			newEdges[i][2] = partition1;
+		    }
+		} 
+		
 		// Move all nodes from partition2 to partition1
-		for (var i = 0; i <= nodeMap.length; i++) {
+		for (var i = 0; i < nodeMap.length; i++) {
 		    if (nodeMap[i] === partition2) {
-			nodeMap[i] = partition2;
+			nodeMap[i] = partition1;
 		    }
 		}
 
+		
 		return newEdges;
 	    };
 
@@ -667,7 +680,7 @@
 		var edgeIndex = Math.floor((Math.random() * remainingEdges.length));
 
 		// Colapse graph based on edge
-		var newEdges = colapse(edgeIndex, nodeMap, remainingEdges);
+		var newEdges = colapse(edgeIndex, metaNodeMap, remainingEdges);
 		
 		return contractUntil(metaNodeMap, 
 				     newEdges, 
@@ -690,7 +703,7 @@
 	    var nodes = this.nodes();
 	    var numNodes = nodes.length;
 	    var numEdges = edges.length;
-	    var numIter = Math.ceil(Math.pow(Math.log2(numNodes), 2));
+	    var numIter = Math.ceil(Math.pow(Math.log(numNodes) / Math.LN2, 2));
 
 	    // Create numerical identifiers for each node
 	    // mapping: node id -> position in nodes array
@@ -721,10 +734,10 @@
 	    // Main loop
 	    for (var iter = 0; iter <= numIter; iter++) {
 		// Create new meta node partition
-		metaNodeMap = originalMetaNode.slice(0);
+		var metaNodeMap = originalMetaNode.slice(0);
 
 		// Contract until only 2 nodes
-		var res = contractUntil(metaNodeMap, remainingEdges, numNodes, 2);
+		var res = contractUntil(metaNodeMap, edgeIndexes, numNodes, 2);
 		
 		// Is this the best cut so far?
 		if (res.length < minCutSize) {
@@ -739,10 +752,11 @@
 	    var resEdges = (minCut[0]).map(function(e) {return edges[e[0]].id();});
 	    var partition1 = [];
 	    var partition2 = [];
-	    var witnessNodePartition = minCut[1][0];
 
-	    for (var i = 0; i < minCut[1].length; i++) {
-		var partitionId = minCut[1][i];
+	    // traverse metaNodeMap for best cut
+	    var witnessNodePartition = minCut[1][0];
+	    for (var i = 0; i < minCut[1].length; i++) { 
+		var partitionId = minCut[1][i]; 
 		if (partitionId === witnessNodePartition) {
 		    partition1.push(nodes[i].id());
 		} else {
@@ -750,13 +764,13 @@
 		}		
 	    }
 	    
-	    var res = {
+	    var ret = {
 		cut: resEdges,
 		partition1: partition1,
 		partition2: partition2
 	    };
 	    
-	    return res;
+	    return ret;
 	},
 
     }); // $$.fn.eles
