@@ -636,4 +636,15 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
 
   });
 
+  it('eles.kargerStein() (minimum Cut)', function() {
+
+      var res = cy.elements().kargerStein({});
+
+      // Cut size between 2 and 4
+      expect(res.cut.length).to.be.within(2,4);
+
+      // Number of nodes matches
+      expect(res.partition1.length + res.partition2.length).to.equal(5);
+  });
+
 });

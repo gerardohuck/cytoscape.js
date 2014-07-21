@@ -660,13 +660,12 @@
 			nodeMap[i] = partition1;
 		    }
 		}
-
 		
 		return newEdges;
 	    };
 
 
-	    //
+	    // Contracts a graph until we reach a certain number of meta nodes
 	    var contractUntil = function(metaNodeMap, 
 					 remainingEdges,
 					 size, 
@@ -688,6 +687,7 @@
 				     sizeLimit);		
 	    };
 
+
 	    // Parse options
 	    // debug - optional
 	    if (typeof options.debug !== "undefined") {
@@ -704,6 +704,12 @@
 	    var numNodes = nodes.length;
 	    var numEdges = edges.length;
 	    var numIter = Math.ceil(Math.pow(Math.log(numNodes) / Math.LN2, 2));
+	    var stopSize = Math.floor(numNodes / Math.sqrt(2));
+
+	    if (numNodes < 2) {
+		console.error("At least 2 nodes are required for KargerSteing algorithm!"); 
+		return undefined;
+	    }
 
 	    // Create numerical identifiers for each node
 	    // mapping: node id -> position in nodes array
@@ -723,7 +729,7 @@
 
 	    // We will store the best cut found here
 	    var minCutSize = Infinity;
-	    var minCut = undefined;
+	    var minCut = undefined;	    
 
 	    // Initial meta node partition
 	    var originalMetaNode = [];
@@ -736,15 +742,24 @@
 		// Create new meta node partition
 		var metaNodeMap = originalMetaNode.slice(0);
 
-		// Contract until only 2 nodes
-		var res = contractUntil(metaNodeMap, edgeIndexes, numNodes, 2);
+		// Contract until stop point (stopSize nodes)
+		var edgesState = contractUntil(metaNodeMap, edgeIndexes, numNodes, stopSize);
 		
-		// Is this the best cut so far?
-		if (res.length < minCutSize) {
-		    minCutSize = res.length;
-		    minCut = [res, metaNodeMap];
+		// Create a copy of the colapsed nodes state
+		var metaNodeMap2 = metaNodeMap.slice(0);
+
+		// Run 2 iterations starting in the stop state
+		var res1 = contractUntil(metaNodeMap, edgesState, stopSize, 2);
+		var res2 = contractUntil(metaNodeMap2, edgesState, stopSize, 2);
+
+		// Is any of the 2 results the best cut so far?
+		if (res1.length <= res2.length && res1.length < minCutSize) {
+		    minCutSize = res1.length;
+		    minCut = [res1, metaNodeMap];
+		} else if (res2.length <= res1.length && res2.length < minCutSize) {
+		    minCutSize = res2.length;
+		    minCut = [res2, metaNodeMap2];
 		}
-		
 	    } // end of main loop
 
 	    
