@@ -72,12 +72,12 @@
 	    } else {
 		var debug = false;
 	    }
-	    
+
 	    logDebug("Starting aStar..."); 
 	    var cy = this._private.cy;
 
 	    // root - mandatory!
-	    if (typeof options.root !== "undefined") {		
+	    if (typeof options !== "undefined" && typeof options.root !== "undefined") {		
 		var source = $$.is.string(options.root) ? 
 		    // use it as a selector, e.g. "#rootID
 		    this.filter(options.root)[0] : 
@@ -246,7 +246,6 @@
 	    } else {
 		var debug = false;
 	    }
-
 	    logDebug("Starting floydWarshall..."); 
 
 	    var cy = this._private.cy;
@@ -435,7 +434,6 @@
 	    } else {
 		var debug = false;
 	    }
-
 	    logDebug("Starting bellmanFord..."); 
 
 	    // Weight function - optional
@@ -612,7 +610,14 @@
 	}, // bellmanFord
 
 
+	// Computes the minimum cut of an undirected graph
+	// Returns the correct answer with high probability
+	// options => options object
 	// 
+	// retObj => returned object by function
+	// cut : list of IDs of edges in the cut,
+	// partition1: list of IDs of nodes in one partition
+	// partition2: list of IDs of nodes in the other partition
 	kargerStein: function(options) {
 	    
 	    var logDebug = function() {
@@ -690,12 +695,11 @@
 
 	    // Parse options
 	    // debug - optional
-	    if (typeof options.debug !== "undefined") {
+	    if (typeof options !== "undefined" && typeof options.debug !== "undefined") {
 		var debug = options.debug;
 	    } else {
 		var debug = false;
 	    }
-
 	    logDebug("Starting kargerStein..."); 
 
 	    var cy = this._private.cy;
@@ -788,6 +792,96 @@
 	    return ret;
 	},
 
+
+	// 
+	// options => options object
+	// 
+	// retObj => returned object by function
+	pageRank: function(options) {
+	    
+	    var logDebug = function() {
+		if (debug) {
+		    console.log.apply(console, arguments);
+		}
+	    };
+	    
+	    // Parse options
+	    // debug - optional
+	    if (typeof options !== "undefined" && 
+		typeof options.debug !== "undefined") {
+		var debug = options.debug;
+	    } else {
+		var debug = false;
+	    }
+	    logDebug("Starting pageRank..."); 
+
+	    // dampingFactor - optional
+	    if (typeof options !== "undefined" && 
+		typeof options.dampingFactor !== "undefined") {
+		var dampingFactor = options.dampingFactor;
+	    } else {
+		var dampingFactor = 0.8; // Default damping factor
+	    }
+
+	    // Weight function - optional
+	    if (typeof options !== "undefined" && 
+		typeof options.weight !== "undefined" && 
+		$$.is.fn(options.weight)) {		
+		var weightFn = options.weight;
+	    } else {
+		// If not specified, assume each edge has equal weight (1)
+		var weightFn = function(e) {return 1;};
+	    }
+
+	    var cy = this._private.cy;
+	    var edges = this.edges().not(':loop');
+	    var nodes = this.nodes();
+	    var numNodes = nodes.length;
+	    var numEdges = edges.length;
+
+	    // Create numerical identifiers for each node
+	    // mapping: node id -> position in nodes array
+	    // for reverse mapping, simply use nodes array
+	    var id2position = {};
+	    for (var i = 0; i < numNodes; i++) {
+		id2position[nodes[i].id()] = i;
+	    }
+
+	    // Construct transposed adjacency matrix
+	    // First lets have a zeroed matrix of the right size
+	    // We'll also keep track of the sum of each column
+	    var matrix = [];
+	    var columnSum = [];
+	    for (var i = 0; i < numNodes; i++) { 
+		var newRow = [];
+		for (var j = 0; j < numNodes; j++) {
+		    newRow.push(0.0);
+		}
+		matrix.push(newRow);
+		columnSum.push(0.0);
+	    }
+
+	    // now, process edges
+	    for (var i = 0; i < numEdges; i++) {
+		var edge = edges[i];
+		var s = id2position[edge.source().id()];
+		var t = id2position[edge.target().id()];
+		var w = weightFn.apply(e, [e]);
+		
+		// Update matrix
+		matrix[t][s] += w;
+
+		// Update column sum
+		columnSum[t] += w; 
+	    }
+
+	    // TODO: add damping factor
+
+	    // TODO: compute dominant eigenvector
+	    
+	} // pageRank
+
     }); // $$.fn.eles
+
 
 }) (cytoscape);
