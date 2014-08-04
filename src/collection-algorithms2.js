@@ -799,6 +799,21 @@
 	// retObj => returned object by function
 	pageRank: function(options) {
 	    
+	    var normalizeVector = function(vector) {
+		var length = vector.length;
+
+		// First, get sum of all elements
+		var total = 0; 
+		for (var i = 0; i < length; i++) {
+		    total += vector[i];
+		}
+
+		// Now, divide each by the sum of all elements
+		for (var i = 0; i < length; i++) {
+		    vector[i] = vector[i] / total;
+		}
+	    }
+	    
 	    var logDebug = function() {
 		if (debug) {
 		    console.log.apply(console, arguments);
@@ -852,6 +867,9 @@
 	    // We'll also keep track of the sum of each column
 	    var matrix = [];
 	    var columnSum = [];
+	    var additionalProb = (1 - dampingFactor) / numNodes;
+
+	    // Create null matric
 	    for (var i = 0; i < numNodes; i++) { 
 		var newRow = [];
 		for (var j = 0; j < numNodes; j++) {
@@ -861,7 +879,7 @@
 		columnSum.push(0.0);
 	    }
 
-	    // now, process edges
+	    // Now, process edges
 	    for (var i = 0; i < numEdges; i++) {
 		var edge = edges[i];
 		var s = id2position[edge.source().id()];
@@ -875,10 +893,30 @@
 		columnSum[t] += w; 
 	    }
 
-	    // TODO: add damping factor
+	    // Add additional probability based on damping factor
+	    // Also, take into account columns that have sum = 0
+	    var p = 1.0 / numNodes + additionalProb; // Shorthand
+	    // Traverse matrix, column by column
+	    for (var j = 0; j < numNodes; j++) { 
+		if (columnSum[j] === 0) {
+		    // No 'links' out from node jth, assume equal probability for each possible node
+		    for (var i = 0; i < numNodes; i++) {
+			matrix[i][j] = p;
+		    }
+		} else {
+		    // Node jth has outgoing link, compute normalized probabilities
+		    for (var i = 0; i < numNodes; i++) {
+			matrix[i][j] = matrix[i][j] / columnSum[j] + p;
+		    }		    
+		}
+	    }
+
 
 	    // TODO: compute dominant eigenvector
-	    
+	    //normalizeVector();
+
+	    // Construct result
+
 	} // pageRank
 
     }); // $$.fn.eles
