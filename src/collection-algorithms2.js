@@ -795,8 +795,11 @@
 
 	// 
 	// options => options object
-	// 
+	//   dampingFactor: optional
+	//   precision: optional
+	//   iterations : optional
 	// retObj => returned object by function
+	//    rank : function that returns the pageRank of a given node (object or selector string)
 	pageRank: function(options) {
 	    
 	    var normalizeVector = function(vector) {
@@ -843,10 +846,10 @@
 		typeof options.precision !== "undefined") {
 		var epsilon = options.precision;
 	    } else {
-		var epsilon = 0.0001; // Default precision
+		var epsilon = 0.000001; // Default precision
 	    }
 
-	    // Number of iterations - optional
+	    // Max number of iterations - optional
 	    if (typeof options !== "undefined" && 
 		typeof options.iterations !== "undefined") {
 		var numIter = options.iterations;
@@ -962,7 +965,7 @@
 		
 		// If difference is less than the desired threshold, stop iterating
 		if (diff < epsilon) {
-		    logDebug("Stoped at iteration %s", i);
+		    logDebug("Stoped at iteration %s", iter);
 		    break;
 		}
 	    }

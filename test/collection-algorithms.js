@@ -647,4 +647,18 @@ describe('Graph theory algorithms (traversing, search, etc)', function(){
       expect(res.partition1.length + res.partition2.length).to.equal(5);
   });
 
+
+  it('eles.pageRank(): 1', function() {
+      
+      var res = cy.elements().pageRank({iterations: 20});
+      // Get the sum of the pageRank of all nodes
+      var sum = 0; 
+      var nodes = cy.nodes();
+      for (var i = 0; i < nodes.length; i++) {
+	  sum += res.rank(nodes[i]);
+      }
+      // Sum should be 1 - or really close to it
+      expect(Math.abs(sum - 1)).to.be.below(0.0001);
+  });
+
 });
