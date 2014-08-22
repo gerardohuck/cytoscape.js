@@ -1,3 +1,10 @@
+## Graph model
+
+Cytoscape.js supports many different graph theory usecases.  It supports directed graphs, undirected graphs, mixed graphs, loops, multigraphs, compound graphs, and so on.  
+
+We are regularly making additions and enhancements to the library, and we gladly accept [feature requests](https://github.com/cytoscape/cytoscape.js/issues/new) and pull requests.
+
+
 ## Architecture & API
 
 There are two components in the architecture that a developer need concern himself in order to use Cytoscape.js, the core and the collection.  In Cytoscape.js, the core is a developer's main entry point into the library.  From the core, a developer can run layouts, alter the viewport, and perform other operations on the graph as a whole.
@@ -41,7 +48,9 @@ In this documentation, "position" refers to model position unless otherwise stat
 Examples are given that outline format of the elements JSON used to load elements into Cytoscape.js:
 
 ```js
-$('#cy').cytoscape({
+cytoscape({
+
+  container: document.getElementById('cy'),
   
   elements: [
     { // node n1
@@ -49,13 +58,13 @@ $('#cy').cytoscape({
 
       // NB: id fields must be strings
       data: { // element data (put dev data here)
-      	id: 'n1', // mandatory for each element, assigned automatically on undefined
-      	parent: 'nparent', // indicates the compound node parent id; not defined => no parent
+        id: 'n1', // mandatory for each element, assigned automatically on undefined
+        parent: 'nparent', // indicates the compound node parent id; not defined => no parent
       },
 
       position: { // the model position of the node (optional on init, mandatory after)
-      	x: 100,
-      	y: 100
+        x: 100,
+        y: 100
       },
 
       selected: false, // whether the element is selected (default false)
@@ -66,10 +75,10 @@ $('#cy').cytoscape({
 
       grabbable: true, // whether the node can be grabbed and moved by the user
 
-      classes: 'foo bar' // a space separated list of class names that the element has
+      classes: 'foo bar', // a space separated list of class names that the element has
 
       // NB: you should only use `css` for very special cases; use classes instead
-      css: { backgroundColor: red } // overriden style properties
+      css: { 'background-color': 'red' } // overriden style properties
     },
 
     { // node n2
@@ -86,18 +95,22 @@ $('#cy').cytoscape({
 
     { // node nparent
       group: 'nodes',
-      data: { id: 'nparent' }
+      data: { id: 'nparent', position: { x: 200, y: 100 } }
     },
 
     { // edge e1
       group: 'edges',
       data: {
-      	id: 'e1',
-      	source: 'n1', // the source node id (edge comes from this node)
-      	target: 'n2'  // the target node id (edge goes to this node)
+        id: 'e1',
+        source: 'n1', // the source node id (edge comes from this node)
+        target: 'n2'  // the target node id (edge goes to this node)
       }
     }
   ],
+
+  layout: {
+    name: 'preset'
+  },
 
   // so we can see the ids
   style: [
@@ -110,4 +123,25 @@ $('#cy').cytoscape({
   ]
 
 });
+```
+
+## Compound nodes
+
+Compound nodes are an addition to the traditional graph model.  A compound node contains a number of child nodes, similar to how a HTML DOM element can contain a number of child elements.
+
+Compound nodes are specified via the `parent` field in an element's `data`.  Similar to the `source` and `target` fields of edges, the `parent` field is immutable:  A node's parent can be specified when the node is added to the graph, and after that point, this parent-child relationship can not be changed.  Of course, you can clone an element, modify it, and then add it to the graph to effectively "modify" immutable fields while keeping the graph model consistent.
+
+As far as the API is concerned, compound nodes are treated just like regular nodes &mdash; except in [explicitly compound functions](#collection/compound-nodes) like `node.parent()`.  This means that traditional graph theory functions like `eles.dijkstra()` and `eles.neighborhood()` do not make special allowances for compound nodes, so you may need to make different calls to the API depending on your usecase.
+
+For instance:
+
+```js
+var a = cy.$('#a'); // assume a compound node
+
+// the neighbourhood of `a` contains directly connected elements
+var directlyConnected = a.neighborhood();
+
+// you may want everything connected to its descendants instead
+// because the descendants "belong" to `a`
+var indirectlyConnected = a.add( a.descendants() ).neighborhood();
 ```

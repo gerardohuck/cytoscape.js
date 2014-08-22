@@ -16,6 +16,8 @@ var shell = require('gulp-shell');
 var jshint = require('gulp-jshint');
 var jshStylish = require('jshint-stylish');
 var exec = require('child_process').exec;
+var docsConf = require('./documentation/docmaker.json');
+var runSequence = require('run-sequence');
 
 var version; // used for marking builds w/ version etc
 
@@ -212,10 +214,12 @@ gulp.task('docsbuildlist', ['docsdl'], function(next){
   var cwd = process.cwd();
 
   process.chdir('./documentation/download');
-  require('./documentation/download/dlmaker');
-  process.chdir( cwd );
+  require('./documentation/download/dlmaker')(function(){
+    process.chdir( cwd );
 
-  next();
+    next();
+  });
+  
 });
 
 gulp.task('snapshotpush', ['docsbuildlist'], shell.task([
@@ -226,10 +230,12 @@ gulp.task('docs', function(next){
   var cwd = process.cwd();
 
   process.chdir('./documentation');
-  require('./documentation/docmaker');
-  process.chdir( cwd );
+  require('./documentation/docmaker')( function(){
+    process.chdir( cwd );
 
-  next();
+    next();
+  } );
+  
 });
 
 gulp.task('docsmin', ['docshtmlmin'], function(next){
@@ -297,11 +303,22 @@ gulp.task('docsrefs', function(){
   ;
 });
 
-gulp.task('docspub', ['version', 'docsver', 'docsjs', 'docsbuildlist'], function(){
-  return gulp.start('docsmin');
+gulp.task('docsdemoshots', function(next){
+  var cwd = process.cwd();
+
+  process.chdir('./documentation');
+  require('./documentation/demoshots')( function(){
+    process.chdir( cwd );
+
+    next();
+  } );
 });
 
-gulp.task('pkgver', function(){
+gulp.task('docspub', function(next){
+  runSequence( ['version', 'docsver', 'docsjs', 'docsbuildlist'], 'docsdemoshots', 'docsmin', next );
+});
+
+gulp.task('pkgver', ['version'], function(){
   return gulp.src([
     'package.json',
     'bower.json'

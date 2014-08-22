@@ -1,7 +1,7 @@
 {
   "name": "cytoscape",
-  "description": "A JavaScript graph library for analysis and visualisation",
-  "version": "2.2.8",
+  "description": "A JavaScript graph theory library for analysis and visualisation",
+  "version": "2.2.12",
   "license": "LGPL",
   "engines": {
     "node": ">=0.6"
@@ -68,6 +68,8 @@
     "highlight.js": "~8.0.0",
     "gulp-shell": "~0.2.4",
     "gulp-jshint": "~1.5.5",
-    "jshint-stylish": "~0.2.0"
+    "jshint-stylish": "~0.2.0",
+    "bluebird": "^2.0.2",
+    "run-sequence": "^0.3.6"
   }
 }

@@ -125,7 +125,26 @@ function compileConfig( config ){
 
         demo.embedUrl = 'http://jsbin.com/' + demo.id + '/latest';
         demo.srcUrl = 'http://jsbin.com/' + demo.id + '/latest/edit?js,output';
+        demo.imgUrl = 'img/demos/' + demo.id + '.png';
       }
+    }
+
+    if( section.extensions ){
+      var exts = section.extensions;
+
+      for( var j = 0; j < exts.length; j++ ){
+        var ext = exts[j];
+
+        ext.url = 'https://github.com/' + ext.github;
+      }
+
+      section.extensions = exts.sort(function(a, b){
+        if( a.name < b.name ){
+          return -1;
+        } else {
+          return 1;
+        }
+      });
     }
 
     if( section.fns ){
@@ -188,11 +207,17 @@ function compileConfig( config ){
   }
 }
 
-compileConfig( config );
+module.exports = function( next ){
+  compileConfig( config );
 
-var htmlTemplate = fs.readFileSync('./template.html', encoding);
-var template = Handlebars.compile( htmlTemplate );
-var context = config;
-var html = template( context );
+  var htmlTemplate = fs.readFileSync('./template.html', encoding);
+  var template = Handlebars.compile( htmlTemplate );
+  var context = config;
+  var html = template( context );
 
-fs.writeFileSync('index.html', html, encoding);
+  fs.writeFileSync('index.html', html, encoding);
+
+  next && next();
+};
+
+
