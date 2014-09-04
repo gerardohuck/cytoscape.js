@@ -11,7 +11,7 @@
 	//    weight: function( edge ){} // specifies weight to use for `edge`/`this`. If not present, it will be asumed a weight of 1 for all edges
 	//    heuristic: function( node ){} // specifies heuristic value for `node`/`this`
 	//    directed // default false
-	//    goal // target node (either element or selector string). Optional. If present, computation will end if path to goal is found
+	//    goal // target node (either element or selector string). Mandatory.
 
 	// retObj => returned object by function
 	// found : true/false // whether a path from root to goal has been found
