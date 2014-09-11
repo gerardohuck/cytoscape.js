@@ -1841,7 +1841,7 @@
 
             {
               "name": "eles.aStar",
-              "descr": "Perform A Star search algorithm on the elements in the collection. This finds the shortest path from the root node to the goal node."
+              "descr": "Perform A Star search algorithm on the elements in the collection. This finds the shortest path from the root node to the goal node.",
               "formats": [
                 {
                   "args": [
@@ -1854,6 +1854,20 @@
                 }
               ],
               "md": "collection/aStar"
+            },
+
+            {
+              "name": "eles.floydWarshall",
+              "descr": "Perform Floyd Warshall search algorithm on the elements in the collection. This finds the shortest path between all pairs of nodes.",
+              "formats": [
+                {
+                  "args": [
+                    { "name": "function()", "descr": "A function that returns the positive numeric weight for `this` edge.", "optional": true },
+                    { "name": "directed", "descr": "A boolean indicating whether the algorithm should only go along edges from source to target (default `false`).", "optional": true }
+                  ]
+                }
+              ],
+              "md": "collection/floydwarshall"
             }
 
           ]

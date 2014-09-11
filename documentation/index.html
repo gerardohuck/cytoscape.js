@@ -7318,6 +7318,155 @@ path.select();
 							</div>		
 						</div>
 					
+						<div class="function">
+							<div class="name" id="collection/algorithms/eles.aStar"><span class="fn-name">eles.aStar()</span>  <a href="#collection/algorithms/eles.aStar"><span class="icon-bookmark"></span></a></div>
+							<div class="descr" id="collection/algorithms/eles.aStar"><p>Perform A Star search algorithm on the elements in the collection. This finds the shortest path from the root node to the goal node.</p>
+</div>
+
+							
+							<div class="formats">
+								
+									<div class="format">
+										
+											<div class="name">eles.aStar( <span class="comma">, </span>root [<span class="comma">, </span>function()] [<span class="comma">, </span>function()] [<span class="comma">, </span>directed]<span class="comma">, </span>goal )</div>
+										
+										<div class="descr"></div>
+										<ul class="args">
+											
+												<li>
+													<span class="name">root</span>
+													<span class="descr"><p>The root node (selector or collection) where the search starts.</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">function()</span>
+													<span class="descr"><p>A function that returns the positive numeric weight for <code>this</code> edge.</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">function()</span>
+													<span class="descr"><p>A function that returns an estimation (cannot be overestimation) on the shortest distance  from the current (<code>this</code>) node to the goal.</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">directed</span>
+													<span class="descr"><p>A boolean indicating whether the algorithm should only go along edges from source to target (default <code>false</code>).</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">goal</span>
+													<span class="descr"><p>The goal node (selector or collection) where the search ends.</p>
+</span>
+
+													
+												</li>
+											
+										</ul>
+									</div>
+								
+							</div>
+							
+
+							<div class="details">
+								
+									<h3 id="details">Details</h3>
+<p>Note that this function performs <code>A Star</code> search on only the subset of the graph in the calling collection.</p>
+<p>This function returns an object of the following form:</p>
+<pre><code>{
+  found, /* <span class="hljs-constant">true</span> <span class="hljs-keyword">or</span> <span class="hljs-constant">false</span> */
+  distance, /* Distance <span class="hljs-keyword">of</span> <span class="hljs-keyword">the</span> shortest path, <span class="hljs-keyword">if</span> found */
+  path /* Array <span class="hljs-keyword">of</span> node ids <span class="hljs-keyword">in</span> <span class="hljs-keyword">the</span> shortest path, <span class="hljs-keyword">if</span> found */
+}
+</code></pre><p>the function receives an &quot;options&quot; object as argument, which has the following form:</p>
+<pre><code>{
+  root, /* Mandatory. Starting node, wither object <span class="hljs-keyword">or</span> selector <span class="hljs-built_in">string</span> */
+  weight, /* Optional. Weight <span class="hljs-keyword">function</span> */
+  heuristic, /* Optional. Heuristic <span class="hljs-keyword">function</span> <span class="hljs-keyword">to</span> guide search */
+  directed, /* Optional. Whether consider this a directed (<span class="hljs-literal">true</span>) <span class="hljs-keyword">or</span> undirected graph (<span class="hljs-literal">false</span>) */
+  goal /* Mandatory. Node <span class="hljs-keyword">to</span> search <span class="hljs-keyword">for</span> a path <span class="hljs-keyword">to</span>. Either object <span class="hljs-keyword">or</span> selector <span class="hljs-built_in">string</span>. */
+}
+</code></pre><p>If no weight function is defined, a constance weight of 1 is used for each edge. 
+If no heuristic function is provided, a constant null function will be used, turning this into the same behaviour as Dijkstra&#39;s algorithm. Heuristic should be monotonic (also called consistent) in addition of being &#39;admissible&#39;.</p>
+<h3 id="examples">Examples</h3>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> options = {root: <span class="hljs-string">"#1"</span>, goal: <span class="hljs-string">"#2"</span>};
+<span class="hljs-keyword">var</span> res = cy.elements().aStar(options);
+</code></pre>
+
+								
+							</div>		
+						</div>
+					
+						<div class="function">
+							<div class="name" id="collection/algorithms/eles.floydWarshall"><span class="fn-name">eles.floydWarshall()</span>  <a href="#collection/algorithms/eles.floydWarshall"><span class="icon-bookmark"></span></a></div>
+							<div class="descr" id="collection/algorithms/eles.floydWarshall"><p>Perform Floyd Warshall search algorithm on the elements in the collection. This finds the shortest path between all pairs of nodes.</p>
+</div>
+
+							
+							<div class="formats">
+								
+									<div class="format">
+										
+											<div class="name">eles.floydWarshall(  [<span class="comma">, </span>function()] [<span class="comma">, </span>directed] )</div>
+										
+										<div class="descr"></div>
+										<ul class="args">
+											
+												<li>
+													<span class="name">function()</span>
+													<span class="descr"><p>A function that returns the positive numeric weight for <code>this</code> edge.</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">directed</span>
+													<span class="descr"><p>A boolean indicating whether the algorithm should only go along edges from source to target (default <code>false</code>).</p>
+</span>
+
+													
+												</li>
+											
+										</ul>
+									</div>
+								
+							</div>
+							
+
+							<div class="details">
+								
+									<h3 id="details">Details</h3>
+<p>This function returns an object of the following form:</p>
+<pre><code>{
+  pathTo, /* function <span class="hljs-keyword">that</span> computes <span class="hljs-keyword">the</span> shortest path <span class="hljs-keyword">between</span> <span class="hljs-number">2</span> nodes (either objects <span class="hljs-keyword">or</span> selector strings) */
+  distanceTo /* function <span class="hljs-keyword">that</span> computes <span class="hljs-keyword">the</span> shortest distance <span class="hljs-keyword">between</span> <span class="hljs-number">2</span> nodes (either objects <span class="hljs-keyword">or</span> selector strings) */
+}
+</code></pre><p>the function receives an &quot;options&quot; object as argument, which has the following form:</p>
+<pre><code>{
+  weight, /* Optional. Weight <span class="hljs-function"><span class="hljs-keyword">function</span> */
+  <span class="hljs-title">directed</span> /* <span class="hljs-title">Optional</span>. <span class="hljs-title">Whether</span> <span class="hljs-title">consider</span> <span class="hljs-title">this</span> <span class="hljs-title">a</span> <span class="hljs-title">directed</span> <span class="hljs-params">(true)</span></span> <span class="hljs-keyword">or</span> undirected graph (<span class="hljs-keyword">false</span>) */
+}
+</code></pre><p>If no weight function is defined, a constance weight of 1 is used for each edge. </p>
+<h3 id="examples">Examples</h3>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> res = cy.elements().floydWarshall({});
+</code></pre>
+
+								
+							</div>		
+						</div>
+					
 
 				
 				
@@ -8357,6 +8506,10 @@ path.select();
 						<div class="section lvl3"><a href="#collection/algorithms/eles.dijkstra"><span class="icon-bookmark bookmark-icon"></span> eles.dijkstra() </a></div>
 					
 						<div class="section lvl3"><a href="#collection/algorithms/eles.kruskal"><span class="icon-bookmark bookmark-icon"></span> eles.kruskal() </a></div>
+					
+						<div class="section lvl3"><a href="#collection/algorithms/eles.aStar"><span class="icon-bookmark bookmark-icon"></span> eles.aStar() </a></div>
+					
+						<div class="section lvl3"><a href="#collection/algorithms/eles.floydWarshall"><span class="icon-bookmark bookmark-icon"></span> eles.floydWarshall() </a></div>
 					
 				
 					<div class="section lvl2">
