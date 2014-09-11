@@ -7467,6 +7467,181 @@ If no heuristic function is provided, a constant null function will be used, tur
 							</div>		
 						</div>
 					
+						<div class="function">
+							<div class="name" id="collection/algorithms/eles.bellmanFord"><span class="fn-name">eles.bellmanFord()</span>  <a href="#collection/algorithms/eles.bellmanFord"><span class="icon-bookmark"></span></a></div>
+							<div class="descr" id="collection/algorithms/eles.bellmanFord"><p>Perform Bellman-Ford search algorithm on the elements in the collection. This finds the shortest path from the starting node to all the rest.</p>
+</div>
+
+							
+							<div class="formats">
+								
+									<div class="format">
+										
+											<div class="name">eles.bellmanFord( <span class="comma">, </span>root [<span class="comma">, </span>function()] [<span class="comma">, </span>directed] )</div>
+										
+										<div class="descr"></div>
+										<ul class="args">
+											
+												<li>
+													<span class="name">root</span>
+													<span class="descr"><p>The root node (selector or collection) where the search starts.</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">function()</span>
+													<span class="descr"><p>A function that returns the positive numeric weight for <code>this</code> edge.</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">directed</span>
+													<span class="descr"><p>A boolean indicating whether the algorithm should only go along edges from source to target (default <code>false</code>).</p>
+</span>
+
+													
+												</li>
+											
+										</ul>
+									</div>
+								
+							</div>
+							
+
+							<div class="details">
+								
+									<h3 id="details">Details</h3>
+<p>This function returns an object of the following form:</p>
+<pre><code>{
+  pathTo, /* function <span class="hljs-keyword">that</span> computes <span class="hljs-keyword">the</span> shortest path <span class="hljs-keyword">from</span> root node <span class="hljs-keyword">to</span> <span class="hljs-keyword">the</span> argument node (either objects <span class="hljs-keyword">or</span> selector <span class="hljs-type">string</span>) */
+  distanceTo, /* function <span class="hljs-keyword">that</span> computes <span class="hljs-keyword">the</span> shortest distance <span class="hljs-keyword">from</span> root node <span class="hljs-keyword">to</span> argument node (either objects <span class="hljs-keyword">or</span> selector <span class="hljs-type">string</span>) */
+  hasNegativeWeightCycle /* <span class="hljs-constant">true</span>/<span class="hljs-constant">false</span>. If <span class="hljs-constant">true</span>, pathTo <span class="hljs-keyword">and</span> distanceTo will be undefined */
+}
+</code></pre><p>the function receives an &quot;options&quot; object as argument, which has the following form:</p>
+<pre><code>{
+  root, /* Mandatory. Starting node */
+  weight, /* Optional. Weight <span class="hljs-function"><span class="hljs-keyword">function</span> */
+  <span class="hljs-title">directed</span> /* <span class="hljs-title">Optional</span>. <span class="hljs-title">Whether</span> <span class="hljs-title">consider</span> <span class="hljs-title">this</span> <span class="hljs-title">a</span> <span class="hljs-title">directed</span> <span class="hljs-params">(true)</span></span> <span class="hljs-keyword">or</span> undirected graph (<span class="hljs-keyword">false</span>) */,
+}
+</code></pre><p>If no weight function is defined, a constance weight of 1 is used for each edge. </p>
+<h3 id="examples">Examples</h3>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> options = {root: <span class="hljs-string">"#1"</span>};
+<span class="hljs-keyword">var</span> res = cy.elements().bellmanFord(options);
+</code></pre>
+
+								
+							</div>		
+						</div>
+					
+						<div class="function">
+							<div class="name" id="collection/algorithms/eles.kargerStein"><span class="fn-name">eles.kargerStein()</span>  <a href="#collection/algorithms/eles.kargerStein"><span class="icon-bookmark"></span></a></div>
+							<div class="descr" id="collection/algorithms/eles.kargerStein"><p>Finds the minimum cut in a graph using the Karger-Stein algorithm. The optimal result is found with a high probability, but there&#39;s no warranty about it.</p>
+</div>
+
+							
+							<div class="formats">
+								
+									<div class="format">
+										
+											<div class="name">eles.kargerStein()</div>
+										
+										<div class="descr"></div>
+										<ul class="args">
+											
+										</ul>
+									</div>
+								
+							</div>
+							
+
+							<div class="details">
+								
+									<h3 id="details">Details</h3>
+<p>This function returns an object of the following form:</p>
+<pre><code>{
+  cut, /* List <span class="hljs-keyword">of</span> edge ids <span class="hljs-keyword">that</span> are <span class="hljs-keyword">in</span> <span class="hljs-keyword">the</span> cut*/
+  partition1, /* List <span class="hljs-keyword">of</span> node ids <span class="hljs-keyword">that</span> are <span class="hljs-keyword">in</span> one partition */
+  partition2 /* List <span class="hljs-keyword">of</span> node ids <span class="hljs-keyword">that</span> are <span class="hljs-keyword">in</span> <span class="hljs-keyword">the</span> other partition*/
+}
+</code></pre><p>the function does not require any arguments.</p>
+<h3 id="examples">Examples</h3>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> res = cy.elements().kargerStein();
+</code></pre>
+
+								
+							</div>		
+						</div>
+					
+						<div class="function">
+							<div class="name" id="collection/algorithms/eles.pageRank"><span class="fn-name">eles.pageRank()</span>  <a href="#collection/algorithms/eles.pageRank"><span class="icon-bookmark"></span></a></div>
+							<div class="descr" id="collection/algorithms/eles.pageRank"><p>Rank the nodes in the collection using the Page Rank algorithm.</p>
+</div>
+
+							
+							<div class="formats">
+								
+									<div class="format">
+										
+											<div class="name">eles.pageRank(  [<span class="comma">, </span>dampingFactor] [<span class="comma">, </span>precision] [<span class="comma">, </span>iterations] )</div>
+										
+										<div class="descr"></div>
+										<ul class="args">
+											
+												<li>
+													<span class="name">dampingFactor</span>
+													<span class="descr"><p>Numeric parameter for the algorithm.</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">precision</span>
+													<span class="descr"><p>Numeric parameter that represents the required precision.</p>
+</span>
+
+													
+												</li>
+											
+												<li>
+													<span class="name">iterations</span>
+													<span class="descr"><p>Maximum number of iterations to perform.</p>
+</span>
+
+													
+												</li>
+											
+										</ul>
+									</div>
+								
+							</div>
+							
+
+							<div class="details">
+								
+									<h3 id="details">Details</h3>
+<p>This function returns an object of the following form:</p>
+<pre><code>{
+  rank /* function <span class="hljs-keyword">that</span> computes <span class="hljs-keyword">the</span> rank <span class="hljs-keyword">of</span> a <span class="hljs-keyword">given</span> node (either object <span class="hljs-keyword">or</span> selector <span class="hljs-type">string</span>) */
+}
+</code></pre><p>the function receives an &quot;options&quot; object as argument, which has the following form:</p>
+<pre><code>{
+  dampingFactor, <span class="hljs-comment">/* Optional */</span>
+  <span class="hljs-keyword">precision</span>, <span class="hljs-comment">/* Optional */</span>
+  iterations <span class="hljs-comment">/* Optional */</span>
+}
+</code></pre><h3 id="examples">Examples</h3>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> res = cy.elements().pageRank();
+</code></pre>
+
+								
+							</div>		
+						</div>
+					
 
 				
 				
@@ -8510,6 +8685,12 @@ If no heuristic function is provided, a constant null function will be used, tur
 						<div class="section lvl3"><a href="#collection/algorithms/eles.aStar"><span class="icon-bookmark bookmark-icon"></span> eles.aStar() </a></div>
 					
 						<div class="section lvl3"><a href="#collection/algorithms/eles.floydWarshall"><span class="icon-bookmark bookmark-icon"></span> eles.floydWarshall() </a></div>
+					
+						<div class="section lvl3"><a href="#collection/algorithms/eles.bellmanFord"><span class="icon-bookmark bookmark-icon"></span> eles.bellmanFord() </a></div>
+					
+						<div class="section lvl3"><a href="#collection/algorithms/eles.kargerStein"><span class="icon-bookmark bookmark-icon"></span> eles.kargerStein() </a></div>
+					
+						<div class="section lvl3"><a href="#collection/algorithms/eles.pageRank"><span class="icon-bookmark bookmark-icon"></span> eles.pageRank() </a></div>
 					
 				
 					<div class="section lvl2">

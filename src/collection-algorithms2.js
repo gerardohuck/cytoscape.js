@@ -418,7 +418,7 @@
 	// retObj => returned object by function
 	// pathTo : function(toId) // Returns the shortest path from root node to node with ID "toId", as an array of node IDs
 	// distanceTo: function(toId) // Returns the distance of the shortest path from root node to node with ID "toId"
-	// hasNegativeWeightCycle: true/false (if false, pathTo and distanceTo will be undefined)
+	// hasNegativeWeightCycle: true/false (if true, pathTo and distanceTo will be undefined)
 	bellmanFord: function(options) {
 
 	    var logDebug = function() {
